@@ -1,0 +1,13 @@
+export type RentOrder = {
+  id: string
+  reference: string
+  customer: string
+  date: string
+  amount: number
+  payment_ready: "pending" | "success" | "warning"
+  document_emitted: "pending" | "success" | "warning"
+  initial_inspection: "pending" | "success" | "warning"
+  rented: "pending" | "success" | "warning"
+  returned_equipment: "pending" | "success" | "warning"
+  final_inspection: "pending" | "success" | "warning"
+}
