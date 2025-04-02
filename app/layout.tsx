@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { ThemeProvider } from "@/components/theme-provider"
 
@@ -31,6 +32,7 @@ export default function RootLayout({
                 <Link href="/" className="text-sm font-medium">
                   Rent Orders
                 </Link>
+                <ThemeToggle />
               </nav>
             </div>
           </header>
