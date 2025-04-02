@@ -32,6 +32,9 @@ export default function RootLayout({
                 <Link href="/" className="text-sm font-medium">
                   Rent Orders
                 </Link>
+                <Link href="/tables" className="text-sm font-medium">
+                  Tables
+                </Link>
                 <ThemeToggle />
               </nav>
             </div>

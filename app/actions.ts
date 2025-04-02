@@ -76,12 +76,6 @@ export async function submitRentalRequest(formData: FormData) {
       estimated_cost: estimatedCost,
       status: "pending",
       reference_number: referenceNumber,
-      payment_ready: "pending",
-      document_emitted: "pending",
-      initial_inspection: "pending",
-      rented: "pending",
-      returned_equipment: "pending",
-      final_inspection: "pending",
     }
 
     // If we have an ID, this is an update
@@ -168,6 +162,7 @@ export async function fetchEquipments() {
     return []
   }
 }
+
 
 export async function getEquipmentByCategory(category: string) {
   try {

@@ -22,12 +22,6 @@ export type RentalRequest = {
   reference_number: string
   document_urls?: string[]
   created_at?: string
-  payment_ready: "pending" | "success" | "warning"
-  document_emitted: "pending" | "success" | "warning"
-  initial_inspection: "pending" | "success" | "warning"
-  rented: "pending" | "success" | "warning"
-  returned_equipment: "pending" | "success" | "warning"
-  final_inspection: "pending" | "success" | "warning"
 }
 
 export type RentOrder = {
@@ -36,10 +30,6 @@ export type RentOrder = {
   customer: string
   date: string
   amount: number
-  payment_ready: "pending" | "success" | "warning"
-  document_emitted: "pending" | "success" | "warning"
-  initial_inspection: "pending" | "success" | "warning"
-  rented: "pending" | "success" | "warning"
-  returned_equipment: "pending" | "success" | "warning"
-  final_inspection: "pending" | "success" | "warning"
+  status: "pending" | "approved" | "rejected" | "completed"
+  originalData: RentalRequest
 }

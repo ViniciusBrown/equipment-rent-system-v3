@@ -1,190 +1,86 @@
-import type { RentOrder } from "../types"
+import type { RentOrder, Status } from "../types"
 
-// Sample data
-export const SAMPLE_RENT_ORDERS: RentOrder[] = [
-  {
-    id: "1",
-    reference: "RNT-123456",
-    customer: "John Doe",
-    date: "2023-05-15",
-    amount: 1250.0,
-    payment_ready: "success",
-    document_emitted: "success",
-    initial_inspection: "success",
-    rented: "success",
-    returned_equipment: "pending",
-    final_inspection: "pending",
-    originalData: {
-      id: "1",
-      full_name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "555-123-4567",
-      equipment_items: [{ id: "cam1", name: "ARRI Alexa Mini", daily_rate: 650, quantity: 1 }],
-      rental_start: "2023-05-15",
-      rental_end: "2023-05-20",
-      delivery_option: "pickup",
-      insurance_option: false,
-      operator_needed: false,
-      payment_method: "credit",
-      special_requirements: "",
-      estimated_cost: 1250.0,
-      status: "pending",
-      reference_number: "RNT-123456",
-      payment_ready: "success",
-      document_emitted: "success",
-      initial_inspection: "success",
-      rented: "success",
-      returned_equipment: "pending",
-      final_inspection: "pending",
-    },
-  },
-  {
-    id: "2",
-    reference: "RNT-789012",
-    customer: "Jane Smith",
-    date: "2023-05-18",
-    amount: 2340.5,
-    payment_ready: "success",
-    document_emitted: "success",
-    initial_inspection: "warning",
-    rented: "success",
-    returned_equipment: "warning",
-    final_inspection: "pending",
-    originalData: {
-      id: "2",
-      full_name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "555-987-6543",
-      equipment_items: [{ id: "lens2", name: "Zeiss Supreme Prime Set", daily_rate: 450, quantity: 1 }],
-      rental_start: "2023-05-18",
-      rental_end: "2023-05-25",
-      delivery_option: "delivery",
-      delivery_address: "123 Main St, Anytown, USA",
-      insurance_option: true,
-      operator_needed: true,
-      payment_method: "credit",
-      special_requirements: "",
-      estimated_cost: 2340.5,
-      status: "pending",
-      reference_number: "RNT-789012",
-      payment_ready: "success",
-      document_emitted: "success",
-      initial_inspection: "warning",
-      rented: "success",
-      returned_equipment: "warning",
-      final_inspection: "pending",
-    },
-  },
-  {
-    id: "3",
-    reference: "RNT-345678",
-    customer: "Bob Johnson",
-    date: "2023-05-20",
-    amount: 890.75,
-    payment_ready: "pending",
-    document_emitted: "pending",
-    initial_inspection: "pending",
-    rented: "pending",
-    returned_equipment: "pending",
-    final_inspection: "pending",
-    originalData: {
-      id: "3",
-      full_name: "Bob Johnson",
-      email: "bob.johnson@example.com",
-      phone: "555-456-7890",
-      equipment_items: [{ id: "audio3", name: "Wireless Lavalier Kit", daily_rate: 85, quantity: 2 }],
-      rental_start: "2023-05-20",
-      rental_end: "2023-05-25",
-      delivery_option: "pickup",
-      insurance_option: false,
-      operator_needed: false,
-      payment_method: "debit",
-      special_requirements: "",
-      estimated_cost: 890.75,
-      status: "pending",
-      reference_number: "RNT-345678",
-      payment_ready: "pending",
-      document_emitted: "pending",
-      initial_inspection: "pending",
-      rented: "pending",
-      returned_equipment: "pending",
-      final_inspection: "pending",
-    },
-  },
-  {
-    id: "4",
-    reference: "RNT-901234",
-    customer: "Alice Williams",
-    date: "2023-05-22",
-    amount: 1750.25,
-    payment_ready: "success",
-    document_emitted: "success",
-    initial_inspection: "success",
-    rented: "success",
-    returned_equipment: "success",
-    final_inspection: "warning",
-    originalData: {
-      id: "4",
-      full_name: "Alice Williams",
-      email: "alice.williams@example.com",
-      phone: "555-789-0123",
-      equipment_items: [{ id: "light1", name: "ARRI SkyPanel S60-C", daily_rate: 180, quantity: 2 }],
-      rental_start: "2023-05-22",
-      rental_end: "2023-05-27",
-      delivery_option: "delivery",
-      delivery_address: "456 Oak St, Somewhere, USA",
-      insurance_option: true,
-      operator_needed: false,
-      payment_method: "credit",
-      special_requirements: "",
-      estimated_cost: 1750.25,
-      status: "pending",
-      reference_number: "RNT-901234",
-      payment_ready: "success",
-      document_emitted: "success",
-      initial_inspection: "success",
-      rented: "success",
-      returned_equipment: "success",
-      final_inspection: "warning",
-    },
-  },
-  {
-    id: "5",
-    reference: "RNT-567890",
-    customer: "Charlie Brown",
-    date: "2023-05-25",
-    amount: 3200.0,
-    payment_ready: "warning",
-    document_emitted: "pending",
-    initial_inspection: "pending",
-    rented: "pending",
-    returned_equipment: "pending",
-    final_inspection: "pending",
-    originalData: {
-      id: "5",
-      full_name: "Charlie Brown",
-      email: "charlie.brown@example.com",
-      phone: "555-234-5678",
-      equipment_items: [
-        { id: "prod1", name: "Director's Monitor Package", daily_rate: 220, quantity: 1 },
-        { id: "prod2", name: "Teradek Wireless Video System", daily_rate: 180, quantity: 1 },
-      ],
-      rental_start: "2023-05-25",
-      rental_end: "2023-06-01",
-      delivery_option: "pickup",
-      insurance_option: true,
-      operator_needed: true,
-      payment_method: "invoice",
-      special_requirements: "Need extra batteries for all equipment",
-      estimated_cost: 3200.0,
-      status: "pending",
-      reference_number: "RNT-567890",
-      payment_ready: "warning",
-      document_emitted: "pending",
-      initial_inspection: "pending",
-      rented: "pending",
-      returned_equipment: "pending",
-      final_inspection: "pending",
-    },
-  },
-]
+const equipment = [
+  { id: "cam1", name: "ARRI Alexa Mini", daily_rate: 650, quantity: 1 },
+  { id: "lens2", name: "Zeiss Supreme Prime Set", daily_rate: 450, quantity: 1 },
+  { id: "audio3", name: "Wireless Lavalier Kit", daily_rate: 85, quantity: 2 },
+  { id: "light1", name: "ARRI SkyPanel S60-C", daily_rate: 180, quantity: 2 },
+  { id: "prod1", name: "Director's Monitor Package", daily_rate: 220, quantity: 1 },
+  { id: "prod2", name: "Teradek Wireless Video System", daily_rate: 180, quantity: 1 }
+];
+
+const streets = ["Main", "Oak", "Maple", "Cedar", "Pine"];
+const statuses: Status[] = ["pending", "approved", "completed", "rejected"];
+const deliveryOptions = ["pickup", "delivery"];
+const paymentMethods = ["credit", "debit", "invoice"];
+
+const firstNames = ["John", "Maria", "David", "Emma", "Michael", "Sarah", "James", "Lisa",
+  "Robert", "Jennifer", "William", "Patricia", "Richard", "Elizabeth", "Joseph", "Margaret",
+  "Thomas", "Sandra", "Charles", "Karen"];
+
+const lastNames = ["Smith", "Garcia", "Johnson", "Wilson", "Brown", "Davis", "Miller", "Anderson",
+  "Taylor", "Martinez", "Thompson", "Moore", "White", "Lee", "Harris", "Clark",
+  "Rodriguez", "Lewis", "Walker", "Hall"];
+
+function generateRentOrders(count: number): RentOrder[] {
+  const orders: RentOrder[] = [];
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 7); // Last week
+
+  for (let i = 0; i < count; i++) {
+    const rentalStartDate = new Date(startDate);
+    rentalStartDate.setHours(rentalStartDate.getHours() + (i * 3)); // Spread orders over the two weeks
+    const rentalEndDate = new Date(rentalStartDate);
+    rentalEndDate.setDate(rentalEndDate.getDate() + Math.floor(Math.random() * 5) + 2); // 2-7 days rental
+
+    const randomEquipment = equipment[Math.floor(Math.random() * equipment.length)];
+    const status: Status = statuses[Math.floor(Math.random() * statuses.length)];
+    const deliveryOption = deliveryOptions[Math.floor(Math.random() * deliveryOptions.length)];
+    const paymentMethod = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
+    
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const fullName = `${firstName} ${lastName}`;
+    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
+    const phone = `555-${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+    const referenceNumber = `RNT-${String(Math.floor(Math.random() * 900000) + 100000)}`;
+    const estimatedCost = Math.round(randomEquipment.daily_rate *
+      ((rentalEndDate.getTime() - rentalStartDate.getTime()) / (1000 * 60 * 60 * 24)) * 100) / 100;
+
+    const order: RentOrder = {
+      id: String(i + 6), // Starting from 6 since we already have 1-5
+      reference: referenceNumber,
+      customer: fullName,
+      date: rentalStartDate.toISOString().split('T')[0],
+      amount: estimatedCost,
+      status,
+      originalData: {
+        id: String(i + 6),
+        full_name: fullName,
+        email,
+        phone,
+        equipment_items: [randomEquipment],
+        rental_start: rentalStartDate.toISOString().split('T')[0],
+        rental_end: rentalEndDate.toISOString().split('T')[0],
+        delivery_option: deliveryOption,
+        delivery_address: deliveryOption === 'delivery' ?
+          `${Math.floor(Math.random() * 999) + 1} ${streets[Math.floor(Math.random() * streets.length)]} St, Anytown, USA` :
+          undefined,
+        insurance_option: Math.random() > 0.5,
+        operator_needed: Math.random() > 0.7,
+        payment_method: paymentMethod,
+        special_requirements: "",
+        estimated_cost: estimatedCost,
+        status,
+        reference_number: referenceNumber,
+      },
+    };
+
+    orders.push(order);
+  }
+
+  return orders;
+}
+
+// Generate 50 sample orders
+export const SAMPLE_RENT_ORDERS: RentOrder[] = generateRentOrders(50);
