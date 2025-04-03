@@ -33,7 +33,23 @@ function generateRentOrders(count: number): RentOrder[] {
     const rentalEndDate = new Date(rentalStartDate);
     rentalEndDate.setDate(rentalEndDate.getDate() + Math.floor(Math.random() * 5) + 2); // 2-7 days rental
 
-    const randomEquipment = equipment[Math.floor(Math.random() * equipment.length)];
+    // Generate 2-4 random equipment items
+    const numItems = Math.floor(Math.random() * 3) + 2; // 2-4 items
+    const selectedEquipment = [];
+    const usedIds = new Set();
+
+    while (selectedEquipment.length < numItems) {
+      const randomIndex = Math.floor(Math.random() * equipment.length);
+      const item = equipment[randomIndex];
+      if (!usedIds.has(item.id)) {
+        usedIds.add(item.id);
+        selectedEquipment.push({
+          ...item,
+          quantity: Math.floor(Math.random() * 2) + 1 // 1-2 quantity
+        });
+      }
+    }
+
     const status: Status = statuses[Math.floor(Math.random() * statuses.length)];
     const deliveryOption = deliveryOptions[Math.floor(Math.random() * deliveryOptions.length)];
     const paymentMethod = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
@@ -44,8 +60,10 @@ function generateRentOrders(count: number): RentOrder[] {
     const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
     const phone = `555-${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
     const referenceNumber = `RNT-${String(Math.floor(Math.random() * 900000) + 100000)}`;
-    const estimatedCost = Math.round(randomEquipment.daily_rate *
-      ((rentalEndDate.getTime() - rentalStartDate.getTime()) / (1000 * 60 * 60 * 24)) * 100) / 100;
+    const rentalDays = (rentalEndDate.getTime() - rentalStartDate.getTime()) / (1000 * 60 * 60 * 24);
+    const estimatedCost = selectedEquipment.reduce((total, item) => {
+      return total + (item.daily_rate * item.quantity * rentalDays);
+    }, 0);
 
     const order: RentOrder = {
       id: String(i + 6), // Starting from 6 since we already have 1-5
@@ -59,7 +77,7 @@ function generateRentOrders(count: number): RentOrder[] {
         full_name: fullName,
         email,
         phone,
-        equipment_items: [randomEquipment],
+        equipment_items: selectedEquipment,
         rental_start: rentalStartDate.toISOString().split('T')[0],
         rental_end: rentalEndDate.toISOString().split('T')[0],
         delivery_option: deliveryOption,

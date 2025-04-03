@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} [perspective:2500px] [transform-style:preserve-3d] [backface-visibility:hidden]`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <header className="border-b">
             <div className="container flex h-16 items-center justify-between">

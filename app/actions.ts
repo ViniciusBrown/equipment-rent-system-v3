@@ -179,3 +179,27 @@ export async function getEquipmentByCategory(category: string) {
     return []
   }
 }
+
+export async function fetchRentalRequests(): Promise<RentalRequest[]> {
+  try {
+    const { data, error } = await supabase
+      .from("rental_requests")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching rental requests:", error)
+      throw error
+    }
+
+    // Ensure equipment_items is always an array, even if null in DB
+    return data.map(req => ({
+      ...req,
+      equipment_items: req.equipment_items ?? []
+    })) as RentalRequest[]
+
+  } catch (error) {
+    console.error("Error in fetchRentalRequests:", error)
+    return []
+  }
+}
