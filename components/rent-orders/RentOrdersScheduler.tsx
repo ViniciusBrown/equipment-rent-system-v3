@@ -12,7 +12,7 @@ import {
   formatDateForColumn,
   getDaysInWeek,
   getDaysInMonth
-} from "./calendar-types"
+} from "@/components/rent-orders/calendarTypes"
 import { categorizeOrdersByDate } from "./utils"
 import { MonthViewRentOrderCard } from "./MonthViewRentOrderCard"
 import { WeekViewRentOrderCard } from "./WeekViewRentOrderCard"

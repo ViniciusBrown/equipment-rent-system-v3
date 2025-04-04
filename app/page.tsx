@@ -1,4 +1,4 @@
-import { RentOrdersScheduler } from "@/components/rent-orders/rent-orders-scheduler"
+import { RentOrdersScheduler } from "@/components/rent-orders/RentOrdersScheduler"
 import { Button } from "@/components/ui/button"
 import { fetchRentalRequests } from "@/app/actions"
 import { getCurrentDate } from "@/app/current-date"

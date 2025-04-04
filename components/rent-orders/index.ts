@@ -1,1 +1,1 @@
-export { RentOrdersTable } from "./rent-orders-table"
+export { RentOrdersScheduler } from "./RentOrdersScheduler"

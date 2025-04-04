@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react"
 import { cn } from "@/lib/utils"
-import { CalendarColumn, MonthCellTitle, ViewMode } from "./calendar-types"
+import { CalendarColumn, MonthCellTitle, ViewMode } from "./calendarTypes"
 
 interface CalendarSchedulerProps {
   columns: CalendarColumn[]
@@ -12,12 +12,12 @@ interface CalendarSchedulerProps {
   renderCard: (order: any) => ReactNode
 }
 
-export function CalendarScheduler({ 
-  columns, 
-  viewMode, 
-  today, 
+export function CalendarScheduler({
+  columns,
+  viewMode,
+  today,
   currentDate,
-  renderCard 
+  renderCard
 }: CalendarSchedulerProps) {
   const columnClassName = 'w-full min-h-[120px] bg-background'
   const gridClassName = {
