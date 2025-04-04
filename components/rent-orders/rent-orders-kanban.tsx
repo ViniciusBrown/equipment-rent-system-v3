@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AddRentOrderDialog } from "@/components/add-rent-order-dialog"
 import { Badge } from "@/components/ui/badge"
 // Remove server action import - data will come via props
 // import { fetchRentalRequests } from "@/app/actions"
@@ -48,7 +47,7 @@ const categorizeOrders = (orders: RentOrder[]) => {
 
   const nextWeekStart = new Date(todayStart);
   nextWeekStart.setDate(nextWeekStart.getDate() + 7); // Start of day, 7 days from now
-  
+
   return {
     late: orders.filter(order => {
       if (isOrderClosed(order)) return false
@@ -149,13 +148,6 @@ export function RentOrdersKanban({ initialRentOrders }: RentOrdersKanbanProps) {
 
   return (
     <div className="space-y-4">
-      <AddRentOrderDialog
-        initialData={selectedOrder?.originalData}
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-      >
-        <span className="hidden">View Details</span>
-      </AddRentOrderDialog>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {columns.map((column) => (
@@ -237,7 +229,7 @@ export function RentOrdersKanban({ initialRentOrders }: RentOrdersKanbanProps) {
                                 </span>
                               </Badge>
                             ))}
-                            
+
                             {order.originalData.equipment_items.length > 2 && (
                               <>
                                 {expandedItems[order.id] && order.originalData.equipment_items.slice(2).map((item) => (

@@ -26,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AddRentOrderDialog } from "@/components/add-rent-order-dialog"
 import { StatusBadge } from "./components/status-badge"
 import { SAMPLE_RENT_ORDERS } from "./data/sample-data"
 import type { RentOrder } from "./types"
@@ -163,14 +162,7 @@ export function RentOrdersTable() {
 
   return (
     <div className="space-y-4">
-      {/* Details Dialog */}
-      <AddRentOrderDialog
-        initialData={selectedOrder?.originalData}
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-      >
-        <span className="hidden">View Details</span>
-      </AddRentOrderDialog>
+      {/* Details Dialog placeholder - dialog component has been removed */}
 
       <div className="flex items-center justify-end">
         <DropdownMenu>

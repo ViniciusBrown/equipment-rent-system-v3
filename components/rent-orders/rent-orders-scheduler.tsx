@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { AddRentOrderDialog } from "@/components/add-rent-order-dialog"
 import { cn } from "@/lib/utils"
 import type { RentOrder } from "./types"
 import {
@@ -104,13 +103,6 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
 
   return (
     <div className="space-y-4 mx-auto">
-      <AddRentOrderDialog
-        initialData={selectedOrder?.originalData}
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-      >
-        <span className="hidden">View Details</span>
-      </AddRentOrderDialog>
 
       <div className="flex items-center justify-between mb-4 gap-4">
         <h2 className="text-lg font-semibold">

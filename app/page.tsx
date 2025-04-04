@@ -1,6 +1,5 @@
 import { RentOrdersScheduler } from "@/components/rent-orders/rent-orders-scheduler"
 import { Button } from "@/components/ui/button"
-import { AddRentOrderDialog } from "@/components/add-rent-order-dialog"
 import { fetchRentalRequests } from "@/app/actions"
 import { getCurrentDate } from "@/app/current-date"
 import type { RentOrder, Status } from "@/components/rent-orders/types"
@@ -29,12 +28,10 @@ export default async function HomePage() { // Make page async
             Manage and track all equipment rental orders in one place.
           </p>
         </div>
-        <AddRentOrderDialog>
-          <Button size="lg" className="gap-2">
-            <span>New Rent Order</span>
-            <span className="hidden md:inline">+</span>
-          </Button>
-        </AddRentOrderDialog>
+        <Button size="lg" className="gap-2">
+          <span>New Rent Order</span>
+          <span className="hidden md:inline">+</span>
+        </Button>
       </div>
 
       <div className="overflow-x-auto">

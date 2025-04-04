@@ -28,7 +28,6 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { AddRentOrderDialog } from "@/components/add-rent-order-dialog"
 import type { RentalRequest } from "@/lib/supabase/database.types"
 
 // Define the status type
@@ -399,14 +398,7 @@ export function RentOrdersTable() {
 
   return (
     <div className="space-y-4">
-      {/* Details Dialog */}
-      <AddRentOrderDialog
-        initialData={selectedOrder?.originalData}
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-      >
-        <span className="hidden">View Details</span>
-      </AddRentOrderDialog>
+      {/* Details Dialog placeholder - dialog component has been removed */}
 
       <div className="flex items-center justify-end">
         <DropdownMenu>
