@@ -95,6 +95,7 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
         ? parseFloat(String(equipment.daily_rate).replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0
         : Number(equipment.daily_rate) || 0,
       quantity: 1,
+      stock: equipment.stock || '0', // Store stock information
     }
 
     onChange([...value, newItem])
@@ -110,10 +111,19 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
   // Update an equipment item quantity
   const updateEquipmentQuantity = (index: number, newQuantity: number) => {
     const newItems = [...value]
+    const item = newItems[index]
+
+    // Get the maximum allowed quantity based on stock
+    const maxQuantity = parseInt(item.stock as string) || 1
+
+    // Ensure the new quantity doesn't exceed available stock
+    const validQuantity = Math.min(newQuantity, maxQuantity)
+
     newItems[index] = {
-      ...newItems[index],
-      quantity: newQuantity,
+      ...item,
+      quantity: validQuantity,
     }
+
     onChange(newItems)
   }
 
@@ -169,6 +179,7 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
           items={value}
           onRemove={removeEquipmentItem}
           onUpdateQuantity={updateEquipmentQuantity}
+          equipmentList={equipmentList}
         />
       </div>
 

@@ -29,7 +29,7 @@ import { formSchema, FormValues, RentOrderDialogProps } from './types'
 import { calculateEstimatedCost } from './utils'
 import { CustomerInfoTab } from './CustomerInfoTab'
 import { EquipmentTab } from './EquipmentTab'
-import { OrderDetailsTab } from './OrderDetailsTab'
+import { DocumentsTab } from './DocumentsTab'
 
 export function RentOrderDialog({
   open: externalOpen,
@@ -93,12 +93,25 @@ export function RentOrderDialog({
     }
   }, [externalOpen])
 
+  // Create a function to explicitly close the dialog
+  const closeDialog = () => {
+    setDialogOpen(false)
+    if (externalOnOpenChange) {
+      externalOnOpenChange(false)
+    }
+  }
+
   // Handle dialog open state changes
   const handleOpenChange = (open: boolean) => {
-    setDialogOpen(open)
-    if (externalOnOpenChange) {
-      externalOnOpenChange(open)
+    // Only handle opening the dialog through this function
+    // Closing is handled by the closeDialog function and the X button
+    if (open === true) {
+      setDialogOpen(open)
+      if (externalOnOpenChange) {
+        externalOnOpenChange(open)
+      }
     }
+    // For closing, we'll handle it in onPointerDownOutside and with our buttons
   }
 
   // Form submission handler
@@ -134,11 +147,18 @@ export function RentOrderDialog({
         formData.append(`equipmentItems[${index}][quantity]`, item.quantity.toString())
       })
 
+      // Add document files if any
+      if (data.documents && data.documents.length > 0) {
+        data.documents.forEach((file) => {
+          formData.append('idDocuments', file)
+        })
+      }
+
       // Submit the form
       await submitRentalRequest(formData)
 
       // Close the dialog on success
-      handleOpenChange(false)
+      closeDialog()
 
       // Reset the form if it's a new rental
       if (!initialData) {
@@ -152,6 +172,7 @@ export function RentOrderDialog({
           estimatedCost: 0,
           status: 'pending',
           equipmentItems: [],
+          documents: [],
         })
       }
     } catch (error) {
@@ -167,8 +188,10 @@ export function RentOrderDialog({
         {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
         <DialogContent
           className="fixed inset-0 flex items-center justify-center !p-0 !m-0 !max-w-none !w-screen !h-screen !translate-x-0 !translate-y-0 !top-0 !left-0 !rounded-none !border-0 !shadow-none !bg-transparent"
-          onPointerDownOutside={() => handleOpenChange(false)}
-          onClick={() => handleOpenChange(false)}
+          onPointerDownOutside={(e) => {
+            // Prevent closing when clicking outside
+            e.preventDefault()
+          }}
         >
           <div
             className="bg-background rounded-lg border shadow-lg w-full max-w-4xl p-6 flex flex-col"
@@ -190,7 +213,7 @@ export function RentOrderDialog({
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="customer">Customer Info</TabsTrigger>
                   <TabsTrigger value="equipment">Equipment Selection</TabsTrigger>
-                  <TabsTrigger value="details">Order Details</TabsTrigger>
+                  <TabsTrigger value="documents">Documents</TabsTrigger>
                 </TabsList>
 
                 <div className="h-[500px] overflow-hidden flex-grow">
@@ -208,17 +231,17 @@ export function RentOrderDialog({
                     </div>
                   </TabsContent>
 
-                  {/* Order Details Tab */}
-                  <TabsContent value="details" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                  {/* Documents Tab */}
+                  <TabsContent value="documents" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
                     <div className="space-y-4">
-                      <OrderDetailsTab form={form} initialData={initialData} />
+                      <DocumentsTab form={form} initialData={initialData} />
                     </div>
                   </TabsContent>
                 </div>
               </Tabs>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                <Button type="button" variant="outline" onClick={closeDialog}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>

@@ -21,8 +21,10 @@ export const formSchema = z.object({
       name: z.string(),
       daily_rate: z.number(),
       quantity: z.number().min(1),
+      stock: z.string().optional(),
     })
   ).min(1, { message: 'At least one equipment item is required' }),
+  documents: z.array(z.instanceof(File)).optional(),
 })
 
 export type FormValues = z.infer<typeof formSchema>
@@ -39,6 +41,7 @@ export interface EquipmentItem {
   name: string
   daily_rate: number
   quantity: number
+  stock?: string
 }
 
 export interface Equipment {
