@@ -4,8 +4,9 @@ import { useState, useEffect, useMemo } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { fetchEquipments } from '@/app/actions'
-import { MultiSelect } from '@/components/ui/combobox'
+import { Combobox } from '@/components/ui/combobox'
 import { EquipmentItem, Equipment, EquipmentSelectorProps } from '../types'
 import { EquipmentCard } from './EquipmentCard'
 import { SelectedEquipment } from './SelectedEquipment'
@@ -14,8 +15,10 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedBrand, setSelectedBrand] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [appliedBrands, setAppliedBrands] = useState<string[]>([])
+  const [appliedCategories, setAppliedCategories] = useState<string[]>([])
   const [selectedItems, setSelectedItems] = useState<string[]>([])
 
   // Fetch available equipment on component mount
@@ -63,20 +66,20 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
         (equipment.description?.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (equipment.brand?.toLowerCase().includes(searchQuery.toLowerCase()))
 
-      // Filter by selected brands
-      const matchesBrand = selectedBrands.length === 0 ||
-        (equipment.brand && selectedBrands.includes(equipment.brand))
+      // Filter by applied brands
+      const matchesBrand = appliedBrands.length === 0 ||
+        (equipment.brand && appliedBrands.includes(equipment.brand))
 
-      // Filter by selected categories
-      const matchesCategory = selectedCategories.length === 0 ||
-        (equipment.category && selectedCategories.includes(equipment.category))
+      // Filter by applied categories
+      const matchesCategory = appliedCategories.length === 0 ||
+        (equipment.category && appliedCategories.includes(equipment.category))
 
       // Filter out already selected items
       const isNotSelected = !selectedItems.includes(String(equipment.id))
 
       return matchesSearch && matchesBrand && matchesCategory && isNotSelected
     })
-  }, [equipmentList, searchQuery, selectedBrands, selectedCategories, selectedItems])
+  }, [equipmentList, searchQuery, appliedBrands, appliedCategories, selectedItems])
 
   // Update selected items when value changes
   useEffect(() => {
@@ -114,21 +117,39 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
     onChange(newItems)
   }
 
-  // Handle brand filter changes
-  const handleBrandFilterChange = (selected: string[]) => {
-    setSelectedBrands(selected)
+  // Handle brand selection
+  const handleBrandChange = (brand: string) => {
+    if (brand && !appliedBrands.includes(brand)) {
+      setAppliedBrands([...appliedBrands, brand])
+    }
+    setSelectedBrand('')
   }
 
-  // Handle category filter changes
-  const handleCategoryFilterChange = (selected: string[]) => {
-    setSelectedCategories(selected)
+  // Handle category selection
+  const handleCategoryChange = (category: string) => {
+    if (category && !appliedCategories.includes(category)) {
+      setAppliedCategories([...appliedCategories, category])
+    }
+    setSelectedCategory('')
+  }
+
+  // Remove brand filter
+  const removeBrandFilter = (brand: string) => {
+    setAppliedBrands(appliedBrands.filter(b => b !== brand))
+  }
+
+  // Remove category filter
+  const removeCategoryFilter = (category: string) => {
+    setAppliedCategories(appliedCategories.filter(c => c !== category))
   }
 
   // Clear all filters
   const clearFilters = () => {
     setSearchQuery('')
-    setSelectedBrands([])
-    setSelectedCategories([])
+    setSelectedBrand('')
+    setSelectedCategory('')
+    setAppliedBrands([])
+    setAppliedCategories([])
   }
 
   if (loading) {
@@ -170,23 +191,53 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
           {/* Filter Controls */}
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium">Filters</p>
-            {(selectedBrands.length > 0 || selectedCategories.length > 0) && (
+            {(appliedBrands.length > 0 || appliedCategories.length > 0) && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2">
                 <X className="h-3 w-3 mr-1" /> Clear All
               </Button>
             )}
           </div>
 
+          {/* Applied Filters */}
+          <div className="flex flex-wrap gap-1 mb-3">
+            {appliedBrands.map(brand => (
+              <Badge key={`brand-${brand}`} variant="secondary" className="flex items-center gap-1 py-1">
+                Brand: {brand}
+                <button
+                  type="button"
+                  onClick={() => removeBrandFilter(brand)}
+                  className="ml-1 rounded-full hover:bg-muted"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+            {appliedCategories.map(category => (
+              <Badge key={`category-${category}`} variant="secondary" className="flex items-center gap-1 py-1">
+                Category: {category}
+                <button
+                  type="button"
+                  onClick={() => removeCategoryFilter(category)}
+                  className="ml-1 rounded-full hover:bg-muted"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+
           {/* Brand Filters */}
           {brands.length > 0 && (
             <div className="space-y-2 mb-3">
               <p className="text-xs font-medium text-muted-foreground">Filter by Brand</p>
-              <MultiSelect
-                options={brands.map(brand => ({ value: brand, label: brand }))}
-                selected={selectedBrands}
-                onChange={handleBrandFilterChange}
-                placeholder="Select brands"
-                emptyText="No brands found"
+              <Combobox
+                options={brands
+                  .filter(brand => !appliedBrands.includes(brand))
+                  .map(brand => ({ value: brand, label: brand }))}
+                value={selectedBrand}
+                onChange={handleBrandChange}
+                placeholder="Select brand"
+                emptyText="No brands found or all brands already selected"
               />
             </div>
           )}
@@ -195,12 +246,14 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
           {categories.length > 0 && (
             <div className="space-y-2 mb-3">
               <p className="text-xs font-medium text-muted-foreground">Filter by Category</p>
-              <MultiSelect
-                options={categories.map(category => ({ value: category, label: category }))}
-                selected={selectedCategories}
-                onChange={handleCategoryFilterChange}
-                placeholder="Select categories"
-                emptyText="No categories found"
+              <Combobox
+                options={categories
+                  .filter(category => !appliedCategories.includes(category))
+                  .map(category => ({ value: category, label: category }))}
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                placeholder="Select category"
+                emptyText="No categories found or all categories already selected"
               />
             </div>
           )}

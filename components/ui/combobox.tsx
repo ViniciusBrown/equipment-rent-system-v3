@@ -1,24 +1,20 @@
 'use client'
 
 import * as React from 'react'
-import { Check, ChevronsUpDown, X } from 'lucide-react'
+import { Check, ChevronDown, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
 
 export type ComboboxOption = {
   value: string
@@ -42,50 +38,46 @@ export function Combobox({
   emptyText = 'No options found.',
   className,
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false)
+  const [searchTerm, setSearchTerm] = React.useState('')
+
+  // Filter options based on search term
+  const filteredOptions = React.useMemo(() => {
+    if (!searchTerm) return options
+
+    return options.filter(option =>
+      option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [options, searchTerm])
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn('w-full justify-between', className)}
-        >
-          {value
-            ? options.find((option) => option.value === value)?.label
-            : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder={`Search ${placeholder.toLowerCase()}...`} />
-          <CommandEmpty>{emptyText}</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => (
-              <CommandItem
-                key={option.value}
-                value={option.value}
-                onSelect={(currentValue) => {
-                  onChange(currentValue === value ? '' : currentValue)
-                  setOpen(false)
-                }}
-              >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    value === option.value ? 'opacity-100' : 'opacity-0'
-                  )}
-                />
-                {option.label}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <div className={cn('relative space-y-1', className)}>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          <div className="px-2 py-2">
+            <Input
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-2"
+            />
+          </div>
+          {filteredOptions.length === 0 ? (
+            <div className="px-2 py-2 text-sm text-muted-foreground">{emptyText}</div>
+          ) : (
+            <SelectGroup>
+              {filteredOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          )}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
@@ -106,7 +98,17 @@ export function MultiSelect({
   emptyText = 'No options found.',
   className,
 }: MultiSelectProps) {
-  const [open, setOpen] = React.useState(false)
+  const [searchTerm, setSearchTerm] = React.useState('')
+  const [isOpen, setIsOpen] = React.useState(false)
+
+  // Filter options based on search term
+  const filteredOptions = React.useMemo(() => {
+    if (!searchTerm) return options
+
+    return options.filter(option =>
+      option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [options, searchTerm])
 
   const handleSelect = (value: string) => {
     const newSelected = selected.includes(value)
@@ -128,7 +130,7 @@ export function MultiSelect({
     : placeholder
 
   return (
-    <div className="space-y-2">
+    <div className={cn('space-y-2', className)}>
       {/* Selected items */}
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1 min-h-8">
@@ -150,57 +152,63 @@ export function MultiSelect({
         </div>
       )}
 
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn('w-full justify-between', className)}
-          >
-            {buttonText}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
-          <Command>
-            <CommandInput placeholder={`Search ${placeholder.toLowerCase()}...`} />
-            <CommandList>
-              <CommandEmpty>{emptyText}</CommandEmpty>
-              <CommandGroup>
-                {options.map((option) => {
+      <div className="relative">
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={isOpen}
+          className="w-full justify-between"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {buttonText}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+
+        {isOpen && (
+          <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-md">
+            <div className="p-2">
+              <Input
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-2"
+              />
+            </div>
+            <div className="max-h-60 overflow-auto p-1">
+              {filteredOptions.length === 0 ? (
+                <div className="px-2 py-2 text-sm text-muted-foreground">{emptyText}</div>
+              ) : (
+                filteredOptions.map((option) => {
                   const isSelected = selected.includes(option.value)
                   return (
-                    <CommandItem
+                    <div
                       key={option.value}
-                      value={option.value}
-                      onSelect={() => {
-                        handleSelect(option.value)
-                        // Keep the popover open after selection
-                        setOpen(true)
-                      }}
+                      className={cn(
+                        'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer',
+                        isSelected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
+                      )}
+                      onClick={() => handleSelect(option.value)}
                     >
-                      <div className="flex items-center gap-2 w-full">
-                        <div
-                          className={cn(
-                            'flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                            isSelected
-                              ? 'bg-primary text-primary-foreground'
-                              : 'opacity-50'
-                          )}
-                        >
-                          {isSelected && <Check className="h-3 w-3" />}
-                        </div>
-                        <span>{option.label}</span>
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                          isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'opacity-50'
+                        )}
+                      >
+                        {isSelected && <Check className="h-3 w-3" />}
                       </div>
-                    </CommandItem>
+                      <span>{option.label}</span>
+                    </div>
                   )
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                })
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
