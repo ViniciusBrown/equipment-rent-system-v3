@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { RentOrder } from "./types"
 import {
@@ -17,7 +17,7 @@ import { categorizeOrdersByDate } from "./utils"
 import { MonthViewRentOrderCard } from "./MonthViewRentOrderCard"
 import { WeekViewRentOrderCard } from "./WeekViewRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
-
+import { RentOrderDialog } from "./dialog"
 
 
 interface RentOrdersSchedulerProps {
@@ -31,8 +31,6 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
 
   const [currentDate, setCurrentDate] = useState(today)
   const [viewMode, setViewMode] = useState<ViewMode>('week')
-  const [selectedOrder, setSelectedOrder] = useState<RentOrder | null>(null)
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
 
   const handlePrevious = () => {
     const newDate = new Date(currentDate)
@@ -61,8 +59,8 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   }
 
   const handleViewDetails = (order: RentOrder) => {
-    setSelectedOrder(order)
-    setDetailsDialogOpen(true)
+    // We'll use the RentOrderDialog component directly in the card components
+    console.log('View details for order:', order.reference)
   }
 
   const getColumns = (): CalendarColumn[] => {
@@ -102,51 +100,62 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   }
 
   return (
-    <div className="space-y-4 mx-auto">
-
-      <div className="flex items-center justify-between mb-4 gap-4">
-        <h2 className="text-lg font-semibold">
-          {headerTitle}
-        </h2>
-        <div className="flex items-center gap-4">
+    <>
+      <div className="space-y-4 mx-auto">
+        <div className="flex items-center justify-between mb-4 gap-4">
+          <h2 className="text-lg font-semibold">
+            {headerTitle}
+          </h2>
           <div className="flex items-center gap-4">
-            <div className="flex gap-1 bg-muted p-1 rounded-md">
-            {(['week', 'month'] as const).map((mode) => (
-              <Button
-                key={mode}
-                variant="ghost"
-                size="sm"
-                onClick={() => setViewMode(mode)}
-                className={cn(
-                  "capitalize",
-                  viewMode === mode && "bg-background shadow-sm"
-                )}
-              >
-                {mode}
+            <div className="flex items-center gap-4">
+              <div className="flex gap-1 bg-muted p-1 rounded-md">
+              {(['week', 'month'] as const).map((mode) => (
+                <Button
+                  key={mode}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode(mode)}
+                  className={cn(
+                    "capitalize",
+                    viewMode === mode && "bg-background shadow-sm"
+                  )}
+                >
+                  {mode}
+                </Button>
+              ))}
+              </div>
+            </div>
+            <RentOrderDialog
+              trigger={
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Order
+                </Button>
+              }
+            />
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handlePrevious}>
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
               </Button>
-            ))}
-          </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrevious}>
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleNext}>
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+              <Button variant="outline" size="sm" onClick={handleNext}>
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>
         </div>
+
+        <CalendarScheduler
+          columns={columns}
+          viewMode={viewMode}
+          today={today}
+          currentDate={currentDate}
+          renderCard={renderCard}
+        />
       </div>
 
-      <CalendarScheduler
-        columns={columns}
-        viewMode={viewMode}
-        today={today}
-        currentDate={currentDate}
-        renderCard={renderCard}
-      />
-    </div>
+
+    </>
   )
 }

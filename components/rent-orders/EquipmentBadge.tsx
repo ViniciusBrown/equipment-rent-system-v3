@@ -21,6 +21,7 @@ export function EquipmentBadge({ item }: EquipmentBadgeProps) {
         <Badge
           variant="outline"
           className="bg-indigo-400/15 text-indigo-600 dark:text-indigo-300 border-indigo-400/30 flex items-center max-w-full cursor-pointer"
+          onClick={(e) => e.stopPropagation()}
         >
           <span className="truncate mr-auto">{item.name}</span>
           <span className="ml-2 shrink-0 px-1.5 py-0.5 text-[10px] font-medium bg-indigo-400/20 rounded-full">
@@ -28,7 +29,7 @@ export function EquipmentBadge({ item }: EquipmentBadgeProps) {
           </span>
         </Badge>
       </HoverCardTrigger>
-      <HoverCardContent className="w-auto p-3">
+      <HoverCardContent className="w-auto p-3" onClick={(e) => e.stopPropagation()}>
         <div className="space-y-2">
           <h4 className="font-medium">Equipment Details</h4>
           <div className="text-sm">
