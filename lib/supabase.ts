@@ -27,11 +27,6 @@ export type RentalRequest = {
   equipment_items: EquipmentItem[]
   rental_start: string
   rental_end: string
-  delivery_option: string
-  delivery_address?: string
-  insurance_option: boolean
-  operator_needed: boolean
-  payment_method: string
   special_requirements?: string
   estimated_cost: number
   status: "pending" | "approved" | "rejected" | "completed"

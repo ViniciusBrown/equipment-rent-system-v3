@@ -9,10 +9,7 @@ const equipment = [
   { id: "prod2", name: "Teradek Wireless Video System", daily_rate: 180, quantity: 1 }
 ];
 
-const streets = ["Main", "Oak", "Maple", "Cedar", "Pine"];
 const statuses: Status[] = ["pending", "approved", "completed", "rejected"];
-const deliveryOptions = ["pickup", "delivery"];
-const paymentMethods = ["credit", "debit", "invoice"];
 
 const firstNames = ["John", "Maria", "David", "Emma", "Michael", "Sarah", "James", "Lisa",
   "Robert", "Jennifer", "William", "Patricia", "Richard", "Elizabeth", "Joseph", "Margaret",
@@ -51,9 +48,7 @@ function generateRentOrders(count: number): RentOrder[] {
     }
 
     const status: Status = statuses[Math.floor(Math.random() * statuses.length)];
-    const deliveryOption = deliveryOptions[Math.floor(Math.random() * deliveryOptions.length)];
-    const paymentMethod = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
-    
+
     const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
     const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
     const fullName = `${firstName} ${lastName}`;
@@ -80,13 +75,6 @@ function generateRentOrders(count: number): RentOrder[] {
         equipment_items: selectedEquipment,
         rental_start: rentalStartDate.toISOString().split('T')[0],
         rental_end: rentalEndDate.toISOString().split('T')[0],
-        delivery_option: deliveryOption,
-        delivery_address: deliveryOption === 'delivery' ?
-          `${Math.floor(Math.random() * 999) + 1} ${streets[Math.floor(Math.random() * streets.length)]} St, Anytown, USA` :
-          undefined,
-        insurance_option: Math.random() > 0.5,
-        operator_needed: Math.random() > 0.7,
-        payment_method: paymentMethod,
         special_requirements: "",
         estimated_cost: estimatedCost,
         status,

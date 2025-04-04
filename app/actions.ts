@@ -12,11 +12,7 @@ export async function submitRentalRequest(formData: FormData) {
     const phone = formData.get("phone") as string
     const rentalStart = formData.get("rentalStart") as string
     const rentalEnd = formData.get("rentalEnd") as string
-    const deliveryOption = formData.get("deliveryOption") as string
-    const deliveryAddress = formData.get("deliveryAddress") as string
-    const insuranceOption = formData.get("insuranceOption") === "true"
-    const operatorNeeded = formData.get("operatorNeeded") === "true"
-    const paymentMethod = formData.get("paymentMethod") as string
+
     const specialRequirements = formData.get("specialRequirements") as string
     const estimatedCost = Number.parseFloat(formData.get("estimatedCost") as string)
 
@@ -67,11 +63,6 @@ export async function submitRentalRequest(formData: FormData) {
       equipment_items: equipmentItems,
       rental_start: rentalStart,
       rental_end: rentalEnd,
-      delivery_option: deliveryOption,
-      delivery_address: deliveryAddress || undefined,
-      insurance_option: insuranceOption,
-      operator_needed: operatorNeeded,
-      payment_method: paymentMethod,
       special_requirements: specialRequirements || undefined,
       estimated_cost: estimatedCost,
       status: "pending",

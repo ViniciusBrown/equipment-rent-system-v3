@@ -23,10 +23,10 @@ interface WeekViewCardContentProps {
 
 export function WeekViewCardContent({ order, compact = false }: WeekViewCardContentProps) {
   const [expanded, setExpanded] = useState(false)
-  
+
   // Limit the number of equipment items shown in compact mode
   const maxItems = compact ? 1 : 2
-  
+
   return (
     <>
       <CardHeader className={compact ? "p-2 pb-0" : "p-3 pb-0"}>
@@ -90,19 +90,8 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
               Paid
             </Badge>
           </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            <Badge variant="outline" className="bg-blue-400/10 text-blue-600 dark:text-blue-400 border-blue-400/20">
-              {order.originalData.delivery_option === 'delivery' ? '🚚 Delivery' : '🏢 Pickup'}
-            </Badge>
-            {order.originalData.insurance_option && (
-              <Badge variant="outline" className="bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 border-emerald-400/20">
-                🛡️ Insured
-              </Badge>
-            )}
-          </div>
         </div>
-        
+
         {!compact && (
           <div className="mt-4 pt-3 border-t flex items-center justify-end">
             <DropdownMenu>
