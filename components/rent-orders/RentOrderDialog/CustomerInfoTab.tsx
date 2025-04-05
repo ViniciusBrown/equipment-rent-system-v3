@@ -29,9 +29,9 @@ export function CustomerInfoTab({ form }: TabProps) {
         name="fullName"
         render={({ field }) => (
           <FormItem className="col-span-2">
-            <FormLabel>Full Name</FormLabel>
+            <FormLabel>Nome Completo</FormLabel>
             <FormControl>
-              <Input placeholder="John Doe" {...field} />
+              <Input placeholder="João Silva" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -45,7 +45,7 @@ export function CustomerInfoTab({ form }: TabProps) {
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input placeholder="john@example.com" {...field} />
+              <Input placeholder="joao@exemplo.com" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -57,9 +57,9 @@ export function CustomerInfoTab({ form }: TabProps) {
         name="phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Phone</FormLabel>
+            <FormLabel>Telefone</FormLabel>
             <FormControl>
-              <Input placeholder="+1 (555) 123-4567" {...field} />
+              <Input placeholder="(11) 98765-4321" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -71,7 +71,7 @@ export function CustomerInfoTab({ form }: TabProps) {
         name="rentalStart"
         render={({ field }) => (
           <FormItem className="flex flex-col">
-            <FormLabel>Rental Start</FormLabel>
+            <FormLabel>Início do Aluguel</FormLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <FormControl>
@@ -85,7 +85,7 @@ export function CustomerInfoTab({ form }: TabProps) {
                     {field.value ? (
                       format(field.value, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>Escolha uma data</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
@@ -113,7 +113,7 @@ export function CustomerInfoTab({ form }: TabProps) {
         name="rentalEnd"
         render={({ field }) => (
           <FormItem className="flex flex-col">
-            <FormLabel>Rental End</FormLabel>
+            <FormLabel>Fim do Aluguel</FormLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <FormControl>
@@ -127,7 +127,7 @@ export function CustomerInfoTab({ form }: TabProps) {
                     {field.value ? (
                       format(field.value, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>Escolha uma data</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>

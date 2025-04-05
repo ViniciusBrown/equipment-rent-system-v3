@@ -20,7 +20,7 @@ export const getStartOfDay = (dateString: string) => {
 }
 
 export const formatWeekday = (date: Date) => {
-  return date.toLocaleDateString('en-US', { weekday: 'short' })
+  return date.toLocaleDateString('pt-BR', { weekday: 'short' })
 }
 
 export const formatDayNumber = (date: Date) => {
@@ -28,7 +28,7 @@ export const formatDayNumber = (date: Date) => {
 }
 
 export const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('pt-BR', {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
@@ -43,7 +43,7 @@ export const formatDateForColumn = (date: Date, format: 'short' | 'full' | 'mont
     }
   }
   if (format === 'short') {
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('pt-BR', {
       weekday: 'short',
       month: 'short',
       day: 'numeric'

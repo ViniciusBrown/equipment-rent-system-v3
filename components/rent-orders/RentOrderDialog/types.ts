@@ -6,11 +6,11 @@ import type { RentOrder } from '../types'
 // Define the form schema with Zod
 export const formSchema = z.object({
   id: z.number().optional(),
-  fullName: z.string().min(2, { message: 'Full name is required' }),
-  email: z.string().email({ message: 'Invalid email address' }),
-  phone: z.string().min(5, { message: 'Phone number is required' }),
-  rentalStart: z.date({ required_error: 'Rental start date is required' }),
-  rentalEnd: z.date({ required_error: 'Rental end date is required' }),
+  fullName: z.string().min(2, { message: 'Nome completo é obrigatório' }),
+  email: z.string().email({ message: 'Endereço de email inválido' }),
+  phone: z.string().min(5, { message: 'Número de telefone é obrigatório' }),
+  rentalStart: z.date({ required_error: 'Data de início do aluguel é obrigatória' }),
+  rentalEnd: z.date({ required_error: 'Data de fim do aluguel é obrigatória' }),
   specialRequirements: z.string().optional(),
   estimatedCost: z.number().min(0),
   status: z.enum(['pending', 'approved', 'rejected', 'completed']),

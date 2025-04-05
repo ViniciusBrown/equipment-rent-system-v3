@@ -25,29 +25,29 @@ export function EquipmentCard({ equipment, onAdd }: EquipmentCardProps) {
           )}
           {equipment.stock && (
             <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-              Stock: {equipment.stock}
+              Estoque: {equipment.stock}
             </Badge>
           )}
         </div>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-          {equipment.description || 'No description available'}
+          {equipment.description || 'Sem descrição disponível'}
         </p>
         <p className="mt-2 font-medium text-primary">
-          {typeof equipment.daily_rate === 'string' ? equipment.daily_rate : `$${equipment.daily_rate}/day`}
+          {typeof equipment.daily_rate === 'string' ? equipment.daily_rate : `R$${equipment.daily_rate}/dia`}
         </p>
       </CardContent>
       <CardFooter className="p-3 pt-0">
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm" 
-          className="w-full hover:bg-primary hover:text-primary-foreground" 
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full hover:bg-primary hover:text-primary-foreground"
           onClick={() => onAdd(equipment)}
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add to Order
+          Adicionar ao Pedido
         </Button>
       </CardFooter>
     </Card>

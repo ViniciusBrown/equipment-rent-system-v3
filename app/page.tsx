@@ -24,15 +24,15 @@ export default async function HomePage() { // Make page async
     <div className="container py-8 max-w-[95%] mx-auto px-6">
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Rent Orders</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Pedidos de Aluguel</h1>
           <p className="text-muted-foreground">
-            Manage and track all equipment rental orders in one place.
+            Gerencie e acompanhe todos os pedidos de aluguel de equipamentos em um só lugar.
           </p>
         </div>
         <RentOrderDialog
           trigger={
             <Button size="lg" className="gap-2">
-              <span>New Rent Order</span>
+              <span>Novo Pedido</span>
               <span className="hidden md:inline">+</span>
             </Button>
           }

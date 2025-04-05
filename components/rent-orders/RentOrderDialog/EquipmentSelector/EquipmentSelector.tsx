@@ -174,7 +174,7 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
     <div className="space-y-4">
       {/* Selected Equipment Section */}
       <div className="border rounded-md p-4 bg-background">
-        <h3 className="text-sm font-medium mb-2">Selected Equipment</h3>
+        <h3 className="text-sm font-medium mb-2">Equipamentos Selecionados</h3>
         <SelectedEquipment
           items={value}
           onRemove={removeEquipmentItem}
@@ -185,14 +185,14 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
 
       {/* Equipment Search and Filter Section */}
       <div className="border rounded-md p-4 bg-background">
-        <h3 className="text-sm font-medium mb-2">Add Equipment</h3>
+        <h3 className="text-sm font-medium mb-2">Adicionar Equipamentos</h3>
 
         {/* Search and Filter Controls */}
         <div className="space-y-3 mb-4">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search equipment..."
+              placeholder="Buscar equipamentos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
@@ -201,10 +201,10 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
 
           {/* Filter Controls */}
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium">Filters</p>
+            <p className="text-sm font-medium">Filtros</p>
             {(appliedBrands.length > 0 || appliedCategories.length > 0) && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2">
-                <X className="h-3 w-3 mr-1" /> Clear All
+                <X className="h-3 w-3 mr-1" /> Limpar Todos
               </Button>
             )}
           </div>
@@ -213,7 +213,7 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
           <div className="flex flex-wrap gap-1 mb-3">
             {appliedBrands.map(brand => (
               <Badge key={`brand-${brand}`} variant="secondary" className="flex items-center gap-1 py-1">
-                Brand: {brand}
+                Marca: {brand}
                 <button
                   type="button"
                   onClick={() => removeBrandFilter(brand)}
@@ -225,7 +225,7 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
             ))}
             {appliedCategories.map(category => (
               <Badge key={`category-${category}`} variant="secondary" className="flex items-center gap-1 py-1">
-                Category: {category}
+                Categoria: {category}
                 <button
                   type="button"
                   onClick={() => removeCategoryFilter(category)}
@@ -240,15 +240,15 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
           {/* Brand Filters */}
           {brands.length > 0 && (
             <div className="space-y-2 mb-3">
-              <p className="text-xs font-medium text-muted-foreground">Filter by Brand</p>
+              <p className="text-xs font-medium text-muted-foreground">Filtrar por Marca</p>
               <Combobox
                 options={brands
                   .filter(brand => !appliedBrands.includes(brand))
                   .map(brand => ({ value: brand, label: brand }))}
                 value={selectedBrand}
                 onChange={handleBrandChange}
-                placeholder="Select brand"
-                emptyText="No brands found or all brands already selected"
+                placeholder="Selecione a marca"
+                emptyText="Nenhuma marca encontrada ou todas já selecionadas"
               />
             </div>
           )}
@@ -256,15 +256,15 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
           {/* Category Filters */}
           {categories.length > 0 && (
             <div className="space-y-2 mb-3">
-              <p className="text-xs font-medium text-muted-foreground">Filter by Category</p>
+              <p className="text-xs font-medium text-muted-foreground">Filtrar por Categoria</p>
               <Combobox
                 options={categories
                   .filter(category => !appliedCategories.includes(category))
                   .map(category => ({ value: category, label: category }))}
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                placeholder="Select category"
-                emptyText="No categories found or all categories already selected"
+                placeholder="Selecione a categoria"
+                emptyText="Nenhuma categoria encontrada ou todas já selecionadas"
               />
             </div>
           )}
@@ -274,7 +274,7 @@ export function EquipmentSelector({ value, onChange }: EquipmentSelectorProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filteredEquipment.length === 0 ? (
             <div className="col-span-full text-center py-4 bg-muted/20 rounded-md">
-              <p className="text-sm text-muted-foreground">No equipment found</p>
+              <p className="text-sm text-muted-foreground">Nenhum equipamento encontrado</p>
             </div>
           ) : (
             filteredEquipment.map(equipment => (

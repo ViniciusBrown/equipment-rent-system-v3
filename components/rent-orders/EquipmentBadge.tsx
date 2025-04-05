@@ -31,15 +31,15 @@ export function EquipmentBadge({ item }: EquipmentBadgeProps) {
       </HoverCardTrigger>
       <HoverCardContent className="w-auto p-3" onClick={(e) => e.stopPropagation()}>
         <div className="space-y-2">
-          <h4 className="font-medium">Equipment Details</h4>
+          <h4 className="font-medium">Detalhes do Equipamento</h4>
           <div className="text-sm">
-            <p><span className="font-medium">Name:</span> {item.name}</p>
-            <p><span className="font-medium">Quantity:</span> {item.quantity}</p>
+            <p><span className="font-medium">Nome:</span> {item.name}</p>
+            <p><span className="font-medium">Quantidade:</span> {item.quantity}</p>
             {item.daily_rate && (
               <p>
-                <span className="font-medium">Daily Rate:</span> {new Intl.NumberFormat("en-US", {
+                <span className="font-medium">Valor Diário:</span> {new Intl.NumberFormat("pt-BR", {
                   style: "currency",
-                  currency: "USD",
+                  currency: "BRL",
                 }).format(item.daily_rate)}
               </p>
             )}

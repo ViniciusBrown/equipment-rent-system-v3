@@ -188,10 +188,10 @@ export function RentOrderDialog({
       if (result.success) {
         // Show success toast
         toast({
-          title: initialData ? 'Order Updated' : 'Order Created',
+          title: initialData ? 'Pedido Atualizado' : 'Pedido Criado',
           description: initialData
-            ? `Rent order ${result.referenceNumber} has been updated successfully.`
-            : `New rent order ${result.referenceNumber} has been created successfully.`,
+            ? `Pedido de aluguel ${result.referenceNumber} foi atualizado com sucesso.`
+            : `Novo pedido de aluguel ${result.referenceNumber} foi criado com sucesso.`,
           variant: 'default',
         })
 
@@ -216,8 +216,8 @@ export function RentOrderDialog({
       } else {
         // Show error toast for failed operation
         toast({
-          title: 'Operation Failed',
-          description: result.error || 'Failed to submit rental request. Please try again.',
+          title: 'Operação Falhou',
+          description: result.error || 'Falha ao enviar pedido de aluguel. Por favor, tente novamente.',
           variant: 'destructive',
         })
       }
@@ -226,8 +226,8 @@ export function RentOrderDialog({
 
       // Show error toast for any exception
       toast({
-        title: 'Submission Error',
-        description: 'An unexpected error occurred while processing your request. Please try again.',
+        title: 'Erro de Envio',
+        description: 'Ocorreu um erro inesperado ao processar seu pedido. Por favor, tente novamente.',
         variant: 'destructive',
       })
     } finally {
@@ -252,11 +252,11 @@ export function RentOrderDialog({
             style={{ height: '700px' }}
           >
             <DialogHeader>
-              <DialogTitle>{initialData ? 'Edit Rent Order' : 'Create New Rent Order'}</DialogTitle>
+              <DialogTitle>{initialData ? 'Editar Pedido de Aluguel' : 'Criar Novo Pedido de Aluguel'}</DialogTitle>
               <DialogDescription>
                 {initialData
-                  ? `Edit details for rent order ${initialData.reference}`
-                  : 'Fill in the details to create a new rent order'}
+                  ? `Editar detalhes do pedido ${initialData.reference}`
+                  : 'Preencha os detalhes para criar um novo pedido de aluguel'}
               </DialogDescription>
             </DialogHeader>
 
@@ -264,9 +264,9 @@ export function RentOrderDialog({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs defaultValue="customer" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="customer">Customer Info</TabsTrigger>
-                  <TabsTrigger value="equipment">Equipment Selection</TabsTrigger>
-                  <TabsTrigger value="documents">Documents</TabsTrigger>
+                  <TabsTrigger value="customer">Informações do Cliente</TabsTrigger>
+                  <TabsTrigger value="equipment">Seleção de Equipamentos</TabsTrigger>
+                  <TabsTrigger value="documents">Documentos</TabsTrigger>
                 </TabsList>
 
                 <div className="h-[500px] overflow-hidden flex-grow">
@@ -295,7 +295,7 @@ export function RentOrderDialog({
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={closeDialog}>
-                  Cancel
+                  Cancelar
                 </Button>
                 <Button
                   type="button"
@@ -323,23 +323,23 @@ export function RentOrderDialog({
                       } else {
                         console.log('Form has validation errors:', form.formState.errors);
                         toast({
-                          title: 'Validation Error',
-                          description: 'Please check the form for errors and try again.',
+                          title: 'Erro de Validação',
+                          description: 'Por favor, verifique o formulário para erros e tente novamente.',
                           variant: 'destructive',
                         });
                       }
                     } catch (error) {
                       console.error('Error during manual submission:', error);
                       toast({
-                        title: 'Submission Error',
-                        description: 'An unexpected error occurred. Please try again.',
+                        title: 'Erro de Envio',
+                        description: 'Ocorreu um erro inesperado. Por favor, tente novamente.',
                         variant: 'destructive',
                       });
                     }
                   }}
                 >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {initialData ? 'Update Order' : 'Create Order'}
+                  {initialData ? 'Atualizar Pedido' : 'Criar Pedido'}
                 </Button>
               </DialogFooter>
             </form>

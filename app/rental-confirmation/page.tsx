@@ -12,19 +12,19 @@ export default function RentalConfirmationPage({ searchParams }: { searchParams:
         <div className="mb-4 flex justify-center">
           <CheckCircle className="h-16 w-16 text-green-500" />
         </div>
-        <h1 className="mb-2 text-3xl font-bold">Rental Request Submitted</h1>
+        <h1 className="mb-2 text-3xl font-bold">Pedido de Aluguel Enviado</h1>
         <p className="mb-2 text-muted-foreground">
-          Thank you for your equipment rental request. We've received your information and will contact you shortly to
-          confirm the details for your production.
+          Obrigado pelo seu pedido de aluguel de equipamentos. Recebemos suas informações e entraremos em contato em breve para
+          confirmar os detalhes para sua produção.
         </p>
         <div className="mb-6 p-4 bg-muted rounded-md">
-          <p className="font-medium">Reference Number:</p>
+          <p className="font-medium">Número de Referência:</p>
           <p className="text-xl font-bold">{referenceNumber}</p>
-          <p className="text-xs text-muted-foreground mt-2">Please save this reference number for your records.</p>
+          <p className="text-xs text-muted-foreground mt-2">Por favor, guarde este número de referência para seus registros.</p>
         </div>
         <div className="space-y-4">
           <Button asChild className="w-full">
-            <Link href="/">Return to Rent Orders</Link>
+            <Link href="/">Voltar para Pedidos de Aluguel</Link>
           </Button>
         </div>
       </div>

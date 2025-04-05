@@ -17,7 +17,7 @@ export function EquipmentTab({ form }: TabProps) {
       name="equipmentItems"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Equipment Items</FormLabel>
+          <FormLabel>Itens de Equipamento</FormLabel>
           <FormControl>
             <EquipmentSelector
               value={field.value}

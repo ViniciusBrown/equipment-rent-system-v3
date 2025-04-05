@@ -18,7 +18,7 @@ export function SelectedEquipment({ items, onRemove, onUpdateQuantity, equipment
   if (items.length === 0) {
     return (
       <div className="text-center py-4 bg-muted/20 rounded-md">
-        <p className="text-sm text-muted-foreground">No equipment items selected</p>
+        <p className="text-sm text-muted-foreground">Nenhum equipamento selecionado</p>
       </div>
     )
   }
@@ -38,11 +38,11 @@ export function SelectedEquipment({ items, onRemove, onUpdateQuantity, equipment
             <p className="font-medium">{item.name}</p>
             <div className="flex flex-wrap gap-1 mt-1">
               <p className="text-sm text-muted-foreground">
-                {typeof item.daily_rate === 'string' ? item.daily_rate : `$${item.daily_rate}/day`}
+                {typeof item.daily_rate === 'string' ? item.daily_rate : `R$${item.daily_rate}/dia`}
               </p>
               {item.stock && (
                 <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                  Stock: {item.stock}
+                  Estoque: {item.stock}
                 </Badge>
               )}
             </div>
@@ -73,8 +73,8 @@ export function SelectedEquipment({ items, onRemove, onUpdateQuantity, equipment
 
       {/* Total Cost Display */}
       <div className="mt-4 pt-3 border-t flex justify-between items-center">
-        <span className="font-medium">Total Equipment Cost:</span>
-        <span className="font-bold text-lg">${totalCost.toFixed(2)}</span>
+        <span className="font-medium">Custo Total dos Equipamentos:</span>
+        <span className="font-bold text-lg">R${totalCost.toFixed(2)}</span>
       </div>
     </div>
   )

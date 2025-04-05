@@ -73,7 +73,7 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
                   ) : (
                     <ChevronDown className="h-4 w-4 mr-1" />
                   )}
-                  {expanded ? 'Show Less' : `Show ${order.originalData.equipment_items.length - maxItems} More`}
+                  {expanded ? 'Mostrar Menos' : `Mostrar ${order.originalData.equipment_items.length - maxItems} Mais`}
                 </Button>
               </>
             )}
@@ -81,13 +81,13 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
 
           <div className="flex items-center justify-between gap-4">
             <span className="font-medium">
-              {new Intl.NumberFormat("en-US", {
+              {new Intl.NumberFormat("pt-BR", {
                 style: "currency",
-                currency: "USD",
+                currency: "BRL",
               }).format(order.amount)}
             </span>
             <Badge variant="outline" className="bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 border-emerald-400/20">
-              Paid
+              Pago
             </Badge>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
                   className="h-7 w-7 p-0 hover:bg-muted"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">Abrir menu</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -111,11 +111,11 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
                 className="w-[160px]"
                 onClick={(e) => e.stopPropagation()}
               >
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>Ações</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => navigator.clipboard.writeText(order.id)}>
-                  Copy order ID
+                  Copiar ID do pedido
                 </DropdownMenuItem>
-                <DropdownMenuItem>Update status</DropdownMenuItem>
+                <DropdownMenuItem>Atualizar status</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

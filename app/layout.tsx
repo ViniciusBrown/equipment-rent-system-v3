@@ -10,8 +10,8 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Equipment Rental System",
-  description: "Manage equipment rentals for film and video production",
+  title: "Sistema de Aluguel de Equipamentos",
+  description: "Gerencie aluguéis de equipamentos para produção de filmes e vídeos",
     generator: 'v0.dev'
 }
 
@@ -21,20 +21,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body className={`${inter.className} [perspective:2500px] [transform-style:preserve-3d] [backface-visibility:hidden]`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <header className="border-b">
             <div className="container flex h-16 items-center justify-between">
               <Link href="/" className="font-bold text-xl">
-                Equipment Rental
+                Aluguel de Equipamentos
               </Link>
               <nav className="flex items-center gap-6">
                 <Link href="/" className="text-sm font-medium">
-                  Rent Orders
+                  Pedidos de Aluguel
                 </Link>
                 <Link href="/tables" className="text-sm font-medium">
-                  Tables
+                  Tabelas
                 </Link>
                 <ThemeToggle />
               </nav>

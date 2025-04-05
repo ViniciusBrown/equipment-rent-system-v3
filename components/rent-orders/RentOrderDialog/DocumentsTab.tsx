@@ -31,7 +31,7 @@ export function DocumentsTab({ form, initialData }: TabProps) {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files)
       setFiles(prev => [...prev, ...newFiles])
-      
+
       // Add files to form data
       const currentFiles = form.getValues('documents') || []
       form.setValue('documents', [...currentFiles, ...newFiles])
@@ -42,7 +42,7 @@ export function DocumentsTab({ form, initialData }: TabProps) {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true)
     } else if (e.type === 'dragleave') {
@@ -55,11 +55,11 @@ export function DocumentsTab({ form, initialData }: TabProps) {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const newFiles = Array.from(e.dataTransfer.files)
       setFiles(prev => [...prev, ...newFiles])
-      
+
       // Add files to form data
       const currentFiles = form.getValues('documents') || []
       form.setValue('documents', [...currentFiles, ...newFiles])
@@ -71,7 +71,7 @@ export function DocumentsTab({ form, initialData }: TabProps) {
     const newFiles = [...files]
     newFiles.splice(index, 1)
     setFiles(newFiles)
-    
+
     // Update form data
     form.setValue('documents', newFiles)
   }
@@ -91,10 +91,10 @@ export function DocumentsTab({ form, initialData }: TabProps) {
         name="specialRequirements"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Special Requirements</FormLabel>
+            <FormLabel>Requisitos Especiais</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Any special requirements or notes"
+                placeholder="Quaisquer requisitos especiais ou observações"
                 className="resize-none"
                 {...field}
               />
@@ -118,14 +118,14 @@ export function DocumentsTab({ form, initialData }: TabProps) {
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="approved">Aprovado</SelectItem>
+                  <SelectItem value="rejected">Rejeitado</SelectItem>
+                  <SelectItem value="completed">Concluído</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -135,12 +135,12 @@ export function DocumentsTab({ form, initialData }: TabProps) {
       )}
       {/* Document Upload */}
       <FormItem>
-        <FormLabel>Upload Documents</FormLabel>
+        <FormLabel>Enviar Documentos</FormLabel>
         <FormDescription>
-          Upload ID documents, contracts, or other relevant files
+          Envie documentos de identificação, contratos ou outros arquivos relevantes
         </FormDescription>
-        
-        <div 
+
+        <div
           className={`border-2 border-dashed rounded-lg p-6 text-center ${
             dragActive ? 'border-primary bg-primary/5' : 'border-border'
           }`}
@@ -152,10 +152,10 @@ export function DocumentsTab({ form, initialData }: TabProps) {
           <div className="flex flex-col items-center justify-center space-y-2">
             <Upload className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm font-medium">
-              Drag and drop files here or click to browse
+              Arraste e solte arquivos aqui ou clique para navegar
             </p>
             <p className="text-xs text-muted-foreground">
-              Supported formats: PDF, JPG, PNG (Max 10MB)
+              Formatos suportados: PDF, JPG, PNG (Máx 10MB)
             </p>
             <Button
               type="button"
@@ -163,7 +163,7 @@ export function DocumentsTab({ form, initialData }: TabProps) {
               size="sm"
               onClick={() => document.getElementById('file-upload')?.click()}
             >
-              Select Files
+              Selecionar Arquivos
             </Button>
             <input
               id="file-upload"
@@ -181,10 +181,10 @@ export function DocumentsTab({ form, initialData }: TabProps) {
       {/* File List */}
       {files.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium">Selected Files</p>
+          <p className="text-sm font-medium">Arquivos Selecionados</p>
           <div className="space-y-2">
             {files.map((file, index) => (
-              <div 
+              <div
                 key={`${file.name}-${index}`}
                 className="flex items-center justify-between rounded-md border p-3"
               >
@@ -214,12 +214,12 @@ export function DocumentsTab({ form, initialData }: TabProps) {
       {/* Display existing documents if any */}
       {initialData?.originalData.document_urls && initialData.originalData.document_urls.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium">Existing Documents</p>
+          <p className="text-sm font-medium">Documentos Existentes</p>
           <div className="space-y-2">
             {initialData.originalData.document_urls.map((url, index) => {
               const fileName = url.split('/').pop() || `Document ${index + 1}`
               return (
-                <div 
+                <div
                   key={url}
                   className="flex items-center justify-between rounded-md border p-3"
                 >
@@ -235,7 +235,7 @@ export function DocumentsTab({ form, initialData }: TabProps) {
                     size="sm"
                     onClick={() => window.open(url, '_blank')}
                   >
-                    View
+                    Visualizar
                   </Button>
                 </div>
               )

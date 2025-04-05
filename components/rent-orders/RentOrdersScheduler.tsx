@@ -86,9 +86,9 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   const getHeaderTitle = () => {
     switch (viewMode) {
       case 'week':
-        return `Week of ${formatDate(currentDate)}`;
+        return `Semana de ${formatDate(currentDate)}`;
       case 'month':
-        return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        return currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     }
   }
 
@@ -123,7 +123,7 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
                     viewMode === mode && "bg-background shadow-sm"
                   )}
                 >
-                  {mode}
+                  {mode === 'week' ? 'semana' : 'mês'}
                 </Button>
               ))}
               </div>
@@ -139,10 +139,10 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handlePrevious}>
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                Anterior
               </Button>
               <Button variant="outline" size="sm" onClick={handleNext}>
-                Next
+                Próximo
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
