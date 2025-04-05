@@ -16,8 +16,8 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Check if the route requires authentication
-  const authRoutes = ['/profile', '/my-orders']
-  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
+  const authRoutes = ['/', '/profile', '/my-orders']
+  const isAuthRoute = authRoutes.some(route => pathname === route || (route !== '/' && pathname.startsWith(route)))
 
   // Check if the user is authenticated
   const {

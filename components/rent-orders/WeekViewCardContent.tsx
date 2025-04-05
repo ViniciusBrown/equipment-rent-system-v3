@@ -33,10 +33,10 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
         <div className="flex items-center justify-between mb-2">
           <div className="space-y-1">
             <CardTitle className="text-sm font-medium">
-              {order.reference}
+              {order.customer}
             </CardTitle>
             <p className="text-[11px] text-muted-foreground">
-              {order.customer}
+              {order.reference}
             </p>
           </div>
           <Badge
