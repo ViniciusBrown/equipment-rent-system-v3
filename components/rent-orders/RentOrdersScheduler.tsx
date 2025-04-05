@@ -17,7 +17,7 @@ import { categorizeOrdersByDate } from "./utils"
 import { MonthViewRentOrderCard } from "./MonthViewRentOrderCard"
 import { WeekViewRentOrderCard } from "./WeekViewRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
-import { RentOrderDialog } from "./dialog"
+import { RentOrderDialog } from "./RentOrderDialog"
 
 
 interface RentOrdersSchedulerProps {
@@ -31,6 +31,8 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
 
   const [currentDate, setCurrentDate] = useState(today)
   const [viewMode, setViewMode] = useState<ViewMode>('week')
+  const [selectedOrder, setSelectedOrder] = useState<RentOrder | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handlePrevious = () => {
     const newDate = new Date(currentDate)
@@ -59,8 +61,9 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   }
 
   const handleViewDetails = (order: RentOrder) => {
-    // We'll use the RentOrderDialog component directly in the card components
-    console.log('View details for order:', order.reference)
+    console.log('Selected order for editing:', JSON.stringify(order, null, 2))
+    setSelectedOrder(order)
+    setIsDialogOpen(true)
   }
 
   const getColumns = (): CalendarColumn[] => {
@@ -125,13 +128,13 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
               ))}
               </div>
             </div>
+
+            {/* Dialog for viewing/editing rent orders */}
             <RentOrderDialog
-              trigger={
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add Order
-                </Button>
-              }
+              key="edit-dialog"
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              initialData={selectedOrder}
             />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handlePrevious}>

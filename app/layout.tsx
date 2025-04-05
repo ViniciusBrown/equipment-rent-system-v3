@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import Link from "next/link"
 import { ThemeProvider } from "@/components/ThemeProvider"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -40,6 +41,7 @@ export default function RootLayout({
             </div>
           </header>
           <main>{children}</main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

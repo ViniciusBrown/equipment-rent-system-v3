@@ -25,7 +25,7 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
   const [expanded, setExpanded] = useState(false)
 
   // Limit the number of equipment items shown in compact mode
-  const maxItems = compact ? 1 : 2
+  const maxItems = 2
 
   return (
     <>
@@ -54,7 +54,7 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
               <EquipmentBadge key={item.id} item={item} />
             ))}
 
-            {!compact && order.originalData.equipment_items.length > maxItems && (
+            {order.originalData.equipment_items.length > maxItems && (
               <>
                 {expanded && order.originalData.equipment_items.slice(maxItems).map((item) => (
                   <EquipmentBadge key={item.id} item={item} />

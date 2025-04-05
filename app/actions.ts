@@ -5,8 +5,17 @@ import { supabase, type RentalRequest } from "@/lib/supabase"
 
 export async function submitRentalRequest(formData: FormData) {
   try {
+    console.log('Server action received form data')
+
+    // Log all form data entries for debugging
+    console.log('Form data entries:')
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`)
+    }
+
     // Extract data from the form
-    const id = formData.get("id") as string | null
+    const idStr = formData.get("id") as string | null
+    const id = idStr ? Number(idStr) : null
     const fullName = formData.get("fullName") as string
     const email = formData.get("email") as string
     const phone = formData.get("phone") as string
@@ -15,6 +24,7 @@ export async function submitRentalRequest(formData: FormData) {
 
     const specialRequirements = formData.get("specialRequirements") as string
     const estimatedCost = Number.parseFloat(formData.get("estimatedCost") as string)
+    const status = formData.get("status") as "pending" | "approved" | "rejected" | "completed" || "pending"
 
     // Generate a reference number for new requests
     const referenceNumber = id
@@ -65,13 +75,19 @@ export async function submitRentalRequest(formData: FormData) {
       rental_end: rentalEnd,
       special_requirements: specialRequirements || undefined,
       estimated_cost: estimatedCost,
-      status: "pending",
+      status: status,
       reference_number: referenceNumber,
     }
 
     // If we have an ID, this is an update
     if (id) {
+      console.log(`This is an update operation for ID: ${id}`)
+      // For update operations, we need to use the .update() method instead of upsert
+      // This is because upsert might be trying to create a new record instead of updating
+      console.log(`ID is already a number: ${id}`)
       rentalRequest.id = id
+    } else {
+      console.log('This is a new record creation')
     }
 
     // Store ID documents if provided
@@ -86,7 +102,7 @@ export async function submitRentalRequest(formData: FormData) {
 
         // Upload to Supabase Storage
         const fileName = `${referenceNumber}/${document.name}`
-        const { data, error } = await supabase.storage.from("id-documents").upload(fileName, buffer, {
+        const { error } = await supabase.storage.from("id-documents").upload(fileName, buffer, {
           contentType: document.type,
           upsert: false,
         })
@@ -108,22 +124,44 @@ export async function submitRentalRequest(formData: FormData) {
       rentalRequest.document_urls = documentUrls
     }
 
-    // Use upsert instead of insert
-    const { data, error } = await supabase
-      .from("rental_requests")
-      .upsert({
-        ...rentalRequest,
-      })
-      .select()
+    // Log the request for debugging
+    console.log('Processing rental request:', JSON.stringify(rentalRequest, null, 2))
+
+    let error;
+
+    // Use different methods for insert vs update
+    if (id) {
+      // For updates, use the update method with a where clause
+      const { error: updateError } = await supabase
+        .from("rental_requests")
+        .update({
+          ...rentalRequest,
+        })
+        .eq('id', Number(id))
+
+      error = updateError;
+      console.log('Update response:', error ? `Error: ${error.message}` : 'Success')
+    } else {
+      // For new records, use insert
+      const { error: insertError } = await supabase
+        .from("rental_requests")
+        .insert({
+          ...rentalRequest,
+        })
+
+      error = insertError;
+      console.log('Insert response:', error ? `Error: ${error.message}` : 'Success')
+    }
 
     if (error) {
-      console.error("Error upserting rental request:", error)
+      console.error("Error processing rental request:", error)
       throw new Error("Failed to submit rental request")
     }
 
     // Revalidate the equipment page to reflect any availability changes
     revalidatePath("/equipment")
     revalidatePath("/rent-orders")
+    revalidatePath("/")
 
     return {
       success: true,

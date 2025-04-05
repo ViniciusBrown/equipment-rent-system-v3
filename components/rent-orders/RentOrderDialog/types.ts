@@ -5,7 +5,7 @@ import type { RentOrder } from '../types'
 
 // Define the form schema with Zod
 export const formSchema = z.object({
-  id: z.string().optional(),
+  id: z.number().optional(),
   fullName: z.string().min(2, { message: 'Full name is required' }),
   email: z.string().email({ message: 'Invalid email address' }),
   phone: z.string().min(5, { message: 'Phone number is required' }),
@@ -23,7 +23,7 @@ export const formSchema = z.object({
       quantity: z.number().min(1),
       stock: z.string().optional(),
     })
-  ).min(1, { message: 'At least one equipment item is required' }),
+  ).default([]),  // Default to empty array and no minimum requirement
   documents: z.array(z.instanceof(File)).optional(),
 })
 

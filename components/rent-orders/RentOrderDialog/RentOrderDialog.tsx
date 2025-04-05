@@ -30,6 +30,7 @@ import { calculateEstimatedCost } from './utils'
 import { CustomerInfoTab } from './CustomerInfoTab'
 import { EquipmentTab } from './EquipmentTab'
 import { DocumentsTab } from './DocumentsTab'
+import { useToast } from '@/hooks/use-toast'
 
 export function RentOrderDialog({
   open: externalOpen,
@@ -39,40 +40,22 @@ export function RentOrderDialog({
 }: RentOrderDialogProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
 
-  // Initialize form with default values or initial data
+  // Initialize form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData
-      ? {
-          id: initialData.id,
-          fullName: initialData.originalData.full_name,
-          email: initialData.originalData.email,
-          phone: initialData.originalData.phone,
-          rentalStart: new Date(initialData.originalData.rental_start),
-          rentalEnd: new Date(initialData.originalData.rental_end),
-          specialRequirements: initialData.originalData.special_requirements || '',
-          estimatedCost: initialData.amount,
-          status: initialData.status as any,
-          referenceNumber: initialData.reference,
-          equipmentItems: initialData.originalData.equipment_items.map(item => ({
-            id: item.id,
-            name: item.name,
-            daily_rate: item.daily_rate,
-            quantity: item.quantity,
-          })),
-        }
-      : {
-          fullName: '',
-          email: '',
-          phone: '',
-          rentalStart: new Date(),
-          rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
-          specialRequirements: '',
-          estimatedCost: 0,
-          status: 'pending',
-          equipmentItems: [],
-        },
+    defaultValues: {
+      fullName: '',
+      email: '',
+      phone: '',
+      rentalStart: new Date(),
+      rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
+      specialRequirements: '',
+      estimatedCost: 0,
+      status: 'pending',
+      equipmentItems: [],
+    },
   })
 
   // Watch for changes to calculate estimated cost
@@ -85,6 +68,43 @@ export function RentOrderDialog({
     const cost = calculateEstimatedCost(equipmentItems, rentalStart, rentalEnd)
     form.setValue('estimatedCost', cost)
   }, [equipmentItems, rentalStart, rentalEnd, form])
+
+  // Reset form when initialData changes or dialog opens
+  useEffect(() => {
+    if (initialData && dialogOpen) {
+      console.log('Initializing form with data:', initialData)
+      form.reset({
+        id: Number(initialData.id), // Convert to number
+        fullName: initialData.originalData.full_name,
+        email: initialData.originalData.email,
+        phone: initialData.originalData.phone,
+        rentalStart: new Date(initialData.originalData.rental_start),
+        rentalEnd: new Date(initialData.originalData.rental_end),
+        specialRequirements: initialData.originalData.special_requirements || '',
+        estimatedCost: initialData.amount,
+        status: initialData.status as any,
+        referenceNumber: initialData.reference,
+        equipmentItems: initialData.originalData.equipment_items.map(item => ({
+          id: item.id,
+          name: item.name,
+          daily_rate: item.daily_rate,
+          quantity: item.quantity,
+        })),
+      })
+    } else if (!initialData && dialogOpen) {
+      form.reset({
+        fullName: '',
+        email: '',
+        phone: '',
+        rentalStart: new Date(),
+        rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
+        specialRequirements: '',
+        estimatedCost: 0,
+        status: 'pending',
+        equipmentItems: [],
+      })
+    }
+  }, [initialData, dialogOpen, form])
 
   // Sync with external open state if provided
   useEffect(() => {
@@ -103,29 +123,34 @@ export function RentOrderDialog({
 
   // Handle dialog open state changes
   const handleOpenChange = (open: boolean) => {
-    // Only handle opening the dialog through this function
-    // Closing is handled by the closeDialog function and the X button
-    if (open === true) {
-      setDialogOpen(open)
-      if (externalOnOpenChange) {
-        externalOnOpenChange(open)
-      }
+    setDialogOpen(open)
+    if (externalOnOpenChange) {
+      externalOnOpenChange(open)
     }
-    // For closing, we'll handle it in onPointerDownOutside and with our buttons
   }
 
   // Form submission handler
   const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true)
+
     try {
-      setIsSubmitting(true)
+      console.log('Submitting form data:', JSON.stringify(data, null, 2))
+      console.log('Is update operation:', initialData ? 'Yes' : 'No')
 
       // Convert form data to FormData for server action
       const formData = new FormData()
 
       if (data.id) {
-        formData.append('id', data.id)
+        console.log('Including ID in submission:', data.id)
+        formData.append('id', String(data.id)) // Convert to string for FormData
       }
 
+      // Add reference number if it exists (for updates)
+      if (data.referenceNumber) {
+        formData.append('referenceNumber', data.referenceNumber)
+      }
+
+      // Add customer information
       formData.append('fullName', data.fullName)
       formData.append('email', data.email)
       formData.append('phone', data.phone)
@@ -136,6 +161,7 @@ export function RentOrderDialog({
         formData.append('specialRequirements', data.specialRequirements)
       }
 
+      // Add financial and status information
       formData.append('estimatedCost', data.estimatedCost.toString())
       formData.append('status', data.status)
 
@@ -155,28 +181,55 @@ export function RentOrderDialog({
       }
 
       // Submit the form
-      await submitRentalRequest(formData)
+      console.log('About to submit form data to server action')
+      const result = await submitRentalRequest(formData)
+      console.log('Server action response:', JSON.stringify(result, null, 2))
 
-      // Close the dialog on success
-      closeDialog()
+      if (result.success) {
+        // Show success toast
+        toast({
+          title: initialData ? 'Order Updated' : 'Order Created',
+          description: initialData
+            ? `Rent order ${result.referenceNumber} has been updated successfully.`
+            : `New rent order ${result.referenceNumber} has been created successfully.`,
+          variant: 'default',
+        })
 
-      // Reset the form if it's a new rental
-      if (!initialData) {
-        form.reset({
-          fullName: '',
-          email: '',
-          phone: '',
-          rentalStart: new Date(),
-          rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
-          specialRequirements: '',
-          estimatedCost: 0,
-          status: 'pending',
-          equipmentItems: [],
-          documents: [],
+        // Close the dialog on success
+        closeDialog()
+
+        // Reset the form if it's a new rental
+        if (!initialData) {
+          form.reset({
+            fullName: '',
+            email: '',
+            phone: '',
+            rentalStart: new Date(),
+            rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
+            specialRequirements: '',
+            estimatedCost: 0,
+            status: 'pending',
+            equipmentItems: [],
+            documents: [],
+          })
+        }
+      } else {
+        // Show error toast for failed operation
+        toast({
+          title: 'Operation Failed',
+          description: result.error || 'Failed to submit rental request. Please try again.',
+          variant: 'destructive',
         })
       }
     } catch (error) {
       console.error('Error submitting rental request:', error)
+
+      // Show error toast for any exception
+      toast({
+        title: 'Submission Error',
+        description: 'An unexpected error occurred while processing your request. Please try again.',
+        variant: 'destructive',
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -244,7 +297,47 @@ export function RentOrderDialog({
                 <Button type="button" variant="outline" onClick={closeDialog}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={async () => {
+                    console.log('Manual form submission triggered');
+                    try {
+                      // Manually validate the form
+                      const isValid = await form.trigger();
+                      console.log('Form validation result:', isValid);
+                      console.log('Current form values:', JSON.stringify(form.getValues(), null, 2));
+                      console.log('Form errors:', JSON.stringify(form.formState.errors, null, 2));
+
+                      if (isValid) {
+                        // If valid, get the form values and call onSubmit directly
+                        const values = form.getValues();
+
+                        // Ensure ID is a number if present
+                        if (values.id && typeof values.id === 'string') {
+                          values.id = Number(values.id);
+                        }
+
+                        console.log('Form values to submit:', values);
+                        await onSubmit(values);
+                      } else {
+                        console.log('Form has validation errors:', form.formState.errors);
+                        toast({
+                          title: 'Validation Error',
+                          description: 'Please check the form for errors and try again.',
+                          variant: 'destructive',
+                        });
+                      }
+                    } catch (error) {
+                      console.error('Error during manual submission:', error);
+                      toast({
+                        title: 'Submission Error',
+                        description: 'An unexpected error occurred. Please try again.',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
+                >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {initialData ? 'Update Order' : 'Create Order'}
                 </Button>

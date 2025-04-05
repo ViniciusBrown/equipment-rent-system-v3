@@ -1,5 +1,5 @@
 export type RentalRequest = {
-  id?: string
+  id?: number | string // Can be number (from DB) or string (from form)
   full_name: string
   email: string
   phone: string

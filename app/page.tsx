@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { fetchRentalRequests } from "@/app/actions"
 import { getCurrentDate } from "@/app/current-date"
 import type { RentOrder, Status } from "@/components/rent-orders/types"
-import { RentOrderDialog } from "@/components/rent-orders/dialog"
+import { RentOrderDialog } from "@/components/rent-orders/RentOrderDialog"
 
 export default async function HomePage() { // Make page async
   // Fetch data on the server
