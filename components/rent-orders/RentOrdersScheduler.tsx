@@ -10,7 +10,7 @@ import {
   formatDateForColumn,
   getDaysInMonth
 } from "@/components/rent-orders/calendarTypes"
-import { categorizeOrdersByDate, getStretchedRentOrderInfo } from "./utils"
+import { categorizeOrdersByDate, getStretchedRentOrderInfo, organizeOrdersIntoSlots } from "./utils"
 import { StretchedRentOrderCard } from "./StretchedRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
 import { RentOrderDialog } from "./RentOrderDialog"
@@ -128,9 +128,18 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   // Get all dates in the current month view
   const allDates = columns.map(column => column.date)
 
+  // Organize all orders into slots
+  const allOrders = initialRentOrders.filter(order =>
+    order.originalData?.rental_start && order.originalData?.rental_end
+  )
+  const orderSlots = organizeOrdersIntoSlots(allOrders)
+
   const renderCard = (order: RentOrder, date: Date) => {
+    // Get the slot index for this order
+    const slotIndex = orderSlots.get(order.id) || 0
+
     // Get information about how this order relates to the current date
-    const orderInfo = getStretchedRentOrderInfo(order, date, allDates)
+    const orderInfo = getStretchedRentOrderInfo(order, date, allDates, slotIndex)
 
     return (
       <StretchedRentOrderCard
@@ -143,6 +152,7 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
         isBetween={orderInfo.isBetween}
         isFirst={orderInfo.isFirst}
         isLast={orderInfo.isLast}
+        slotIndex={orderInfo.slotIndex}
       />
     )
   }

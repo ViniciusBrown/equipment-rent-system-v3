@@ -75,11 +75,19 @@ export function CalendarScheduler({
             </div>
           </div>
           <div className={cn(
-            "relative space-y-1",
-            'p-1 min-h-[80px] border-t bg-gradient-to-b from-muted/30 to-transparent',
+            "relative",
+            'p-1 border-t bg-gradient-to-b from-muted/30 to-transparent',
             column.date.getTime() === today.getTime() && 'bg-gradient-to-b from-primary/5 dark:from-primary/10 to-transparent'
           )}>
-            {column.orders.map((order) => renderCard(order, column.date))}
+            {/* Calculate the height based on the number of orders */}
+            <div
+              className="relative px-1"
+              style={{
+                height: column.orders.length > 0 ? `${column.orders.length * 70 + 10}px` : '80px'
+              }}
+            >
+              {column.orders.map((order) => renderCard(order, column.date))}
+            </div>
           </div>
         </div>
       ))}

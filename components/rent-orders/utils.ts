@@ -94,9 +94,74 @@ export interface StretchedRentOrderInfo {
   isBetween: boolean
   isFirst: boolean
   isLast: boolean
+  slotIndex: number
 }
 
-export const getStretchedRentOrderInfo = (order: RentOrder, date: Date, allDates: Date[]): StretchedRentOrderInfo => {
+// Function to organize rent orders into slots
+export const organizeOrdersIntoSlots = (orders: RentOrder[]): Map<string, number> => {
+  const orderSlots = new Map<string, number>();
+
+  // First, group orders by their overlapping date ranges
+  const dateRanges: { order: RentOrder; startTime: number; endTime: number }[] = [];
+
+  orders.forEach(order => {
+    if (!order.originalData?.rental_start || !order.originalData?.rental_end) return;
+
+    const startDate = new Date(order.originalData.rental_start);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(order.originalData.rental_end);
+    endDate.setHours(0, 0, 0, 0);
+
+    dateRanges.push({
+      order,
+      startTime: startDate.getTime(),
+      endTime: endDate.getTime()
+    });
+  });
+
+  // Sort by start date
+  dateRanges.sort((a, b) => a.startTime - b.startTime);
+
+  // Assign slots based on overlapping date ranges
+  const assignedSlots: number[] = [];
+
+  dateRanges.forEach(({ order, startTime, endTime }) => {
+    // Find the first available slot that doesn't overlap
+    let slot = 0;
+    let found = false;
+
+    while (!found) {
+      // Check if this slot is already used by an overlapping order
+      const isOverlapping = dateRanges.some(range => {
+        const otherOrder = range.order;
+        const otherSlot = orderSlots.get(otherOrder.id);
+
+        if (otherSlot === slot) {
+          // Check if date ranges overlap
+          return (
+            (startTime <= range.endTime && endTime >= range.startTime) ||
+            (range.startTime <= endTime && range.endTime >= startTime)
+          );
+        }
+        return false;
+      });
+
+      if (!isOverlapping) {
+        found = true;
+      } else {
+        slot++;
+      }
+    }
+
+    orderSlots.set(order.id, slot);
+    assignedSlots.push(slot);
+  });
+
+  return orderSlots;
+};
+
+export const getStretchedRentOrderInfo = (order: RentOrder, date: Date, allDates: Date[], slotIndex: number = 0): StretchedRentOrderInfo => {
   try {
     const currentDate = new Date(date)
     currentDate.setHours(0, 0, 0, 0)
@@ -141,7 +206,8 @@ export const getStretchedRentOrderInfo = (order: RentOrder, date: Date, allDates
       isEnd,
       isBetween,
       isFirst,
-      isLast
+      isLast,
+      slotIndex
     }
   } catch (error) {
     console.error('Error in getStretchedRentOrderInfo:', error)
@@ -152,7 +218,8 @@ export const getStretchedRentOrderInfo = (order: RentOrder, date: Date, allDates
       isEnd: false,
       isBetween: false,
       isFirst: true,
-      isLast: true
+      isLast: true,
+      slotIndex: 0
     }
   }
 }

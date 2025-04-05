@@ -17,6 +17,7 @@ interface StretchedRentOrderCardProps {
   isBetween: boolean
   isFirst: boolean
   isLast: boolean
+  slotIndex: number
 }
 
 export function StretchedRentOrderCard({
@@ -27,23 +28,22 @@ export function StretchedRentOrderCard({
   isEnd,
   isBetween,
   isFirst,
-  isLast
+  isLast,
+  slotIndex
 }: StretchedRentOrderCardProps) {
   // Determine the style based on the date type
   let cardStyle = ""
 
   if (isStart) {
-    cardStyle = "bg-green-200 dark:bg-green-800/50 rounded-l-md rounded-r-none border-r-0"
+    cardStyle = "bg-green-200 dark:bg-green-800/50 rounded-md"
   } else if (isEnd) {
-    cardStyle = "bg-blue-200 dark:bg-blue-800/50 rounded-r-md rounded-l-none border-l-0"
+    cardStyle = "bg-blue-200 dark:bg-blue-800/50 rounded-md"
   } else if (isBetween) {
-    cardStyle = "bg-gray-200 dark:bg-gray-700/50 rounded-none border-l-0 border-r-0"
+    cardStyle = "bg-gray-200 dark:bg-gray-700/50 rounded-md"
   }
 
-  // Add margin to create a more connected appearance
-  if (!isFirst && (isEnd || isBetween)) {
-    cardStyle += " -mt-[1px]"
-  }
+  // All cards should have the same margins
+  // No need for negative margins anymore
 
   // Add specific styles for all cards when they show content
   if (isStart) {
@@ -57,15 +57,20 @@ export function StretchedRentOrderCard({
   // Show content on all cards in the rental period (start, end, and in-between)
   const showContent = isStart || isEnd || isBetween
 
+  // Calculate the top position based on the slotIndex
+  // We use a fixed height per slot to ensure consistent positioning
+  const slotTopPosition = `${slotIndex * 70}px`
+
   return (
     <HoverCard openDelay={300} closeDelay={200}>
       <HoverCardTrigger asChild>
         <Card
           onClick={() => onViewDetails(order)}
           className={cn(
-            "cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-transform will-change-transform hover:scale-[1.02] shadow-sm dark:shadow-md border-border/30 dark:border-border/50 min-h-[42px]",
+            "cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-transform will-change-transform hover:scale-[1.02] shadow-sm dark:shadow-md border-border/30 dark:border-border/50 min-h-[60px] absolute w-[calc(100%-0.5rem)]",
             cardStyle || "bg-card dark:bg-secondary/40"
           )}
+          style={{ top: slotTopPosition }}
         >
           {showContent && (
             <CardContent className="p-2 space-y-1">
