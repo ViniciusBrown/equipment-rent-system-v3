@@ -14,7 +14,7 @@ export function WeekViewRentOrderCard({ order, onViewDetails }: WeekViewRentOrde
     <Card
       key={order.id}
       onClick={() => onViewDetails(order)}
-      className="cursor-pointer hover:shadow-lg transition-transform will-change-transform hover:scale-[1.02] bg-card dark:bg-card/95 shadow-sm border-border/30"
+      className="cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-transform will-change-transform hover:scale-[1.02] bg-card dark:bg-secondary/40 shadow-sm dark:shadow-md border-border/30 dark:border-border/50"
     >
       <WeekViewCardContent order={order} />
     </Card>

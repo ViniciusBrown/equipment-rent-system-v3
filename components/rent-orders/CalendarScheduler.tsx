@@ -36,7 +36,7 @@ export function CalendarScheduler({
         <div className="w-full flex items-center">
           <div className="flex items-baseline gap-1">
             <span className="text-xs text-muted-foreground">{monthLabel}</span>
-            <span className="text-base">{title.day}</span>
+            <span className="text-base text-foreground">{title.day}</span>
           </div>
           <div className="flex-1 flex justify-end pl-2 -mr-1">
             <span className={cn(
@@ -60,14 +60,14 @@ export function CalendarScheduler({
           <div className={cn(
             'relative p-2',
             column.date.getTime() === today.getTime()
-              ? 'bg-primary/20 border-primary/30 border-2 shadow-sm relative'
-              : 'bg-primary/5 border-1'
+              ? 'bg-primary/20 dark:bg-primary/30 border-primary/30 dark:border-primary/50 border-2 shadow-sm relative'
+              : 'bg-primary/5 dark:bg-secondary/80 border-1'
           )}>
             <div className="text-center flex flex-col items-center py-1">
               <h3 className={cn(
                 "font-semibold text-sm leading-none",
                 column.date.getTime() === today.getTime()
-                  ? 'text-primary font-bold' :
+                  ? 'text-primary dark:text-primary-foreground font-bold' :
                   column.date.getMonth() !== currentDate.getMonth() ? 'text-muted-foreground/60' : ''
               )}>
                 {renderColumnTitle(column.title, column.date, column.orders.length)}
@@ -77,7 +77,7 @@ export function CalendarScheduler({
           <div className={cn(
             "relative space-y-1",
             'p-1 min-h-[80px] border-t bg-gradient-to-b from-muted/30 to-transparent',
-            column.date.getTime() === today.getTime() && 'bg-gradient-to-b from-primary/5 to-transparent'
+            column.date.getTime() === today.getTime() && 'bg-gradient-to-b from-primary/5 dark:from-primary/10 to-transparent'
           )}>
             {column.orders.map((order) => renderCard(order))}
           </div>
