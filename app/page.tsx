@@ -11,7 +11,8 @@ export default async function HomePage() { // Make page async
 
   // Map DB data to the format needed by the Kanban UI
   const rentOrders: RentOrder[] = rentalRequests.map((req) => ({
-    id: req.id!,
+    // Convert id to string to match RentOrder type
+    id: String(req.id!),
     reference: req.reference_number!,
     customer: req.full_name!,
     date: req.created_at!,
@@ -21,7 +22,7 @@ export default async function HomePage() { // Make page async
   }))
 
   return (
-    <div className="container py-8 max-w-[95%] mx-auto px-6">
+    <div className="py-4">
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Pedidos de Aluguel</h1>
@@ -39,8 +40,8 @@ export default async function HomePage() { // Make page async
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="min-w-[1400px] pb-6">
+      <div className="overflow-x-auto pb-2 -mx-4 sm:mx-0">
+        <div className="min-w-[600px] lg:min-w-full pb-4 px-4 sm:px-0">
           <RentOrdersScheduler
             initialRentOrders={rentOrders}
             serverDate={getCurrentDate()}

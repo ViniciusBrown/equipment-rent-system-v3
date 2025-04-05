@@ -25,11 +25,11 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
   const [expanded, setExpanded] = useState(false)
 
   // Limit the number of equipment items shown in compact mode
-  const maxItems = 2
+  const maxItems = compact ? 1 : 2
 
   return (
     <>
-      <CardHeader className={compact ? "p-2 pb-0" : "p-3 pb-0"}>
+      <CardHeader className={compact ? "p-2 pb-0" : "p-2 sm:p-3 pb-0"}>
         <div className="flex items-center justify-between mb-2">
           <div className="space-y-1">
             <CardTitle className="text-sm font-medium">
@@ -47,7 +47,7 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className={compact ? "p-2 pt-0" : "p-3 pt-0"}>
+      <CardContent className={compact ? "p-2 pt-0" : "p-2 sm:p-3 pt-0"}>
         <div className="space-y-2 text-xs">
           <div className="flex flex-wrap gap-1.5">
             {order.originalData.equipment_items.slice(0, maxItems).map((item) => (

@@ -37,7 +37,7 @@ export function MonthViewRentOrderCard({ order, onViewDetails }: MonthViewRentOr
           </CardContent>
         </Card>
       </HoverCardTrigger>
-      <HoverCardContent side="right" align="start" className="w-[350px] p-0 shadow-lg">
+      <HoverCardContent side="right" align="start" className="w-[280px] sm:w-[350px] p-0 shadow-lg">
         <Card className="border-0 shadow-none">
           <WeekViewCardContent order={order} compact={true} />
         </Card>

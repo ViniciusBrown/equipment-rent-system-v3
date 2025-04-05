@@ -19,10 +19,10 @@ export function CalendarScheduler({
   currentDate,
   renderCard
 }: CalendarSchedulerProps) {
-  const columnClassName = 'w-full min-h-[120px] bg-background'
+  const columnClassName = 'w-full min-h-[100px] bg-background'
   const gridClassName = {
-    week: 'grid grid-cols-1 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border',
-    month: 'grid grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border'
+    week: 'grid grid-cols-1 sm:grid-cols-3 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border',
+    month: 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border'
   }[viewMode]
 
   const renderColumnTitle = (title: string | MonthCellTitle, date: Date, orderCount: number) => {
@@ -60,7 +60,7 @@ export function CalendarScheduler({
           <div className={cn(
             'relative p-2',
             column.date.getTime() === today.getTime()
-              ? 'bg-primary/20 border-primary/30 border-2 shadow-sm z-10 relative'
+              ? 'bg-primary/20 border-primary/30 border-2 shadow-sm relative'
               : 'bg-primary/5 border-1'
           )}>
             <div className="text-center flex flex-col items-center py-1">

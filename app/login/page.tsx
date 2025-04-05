@@ -82,12 +82,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container flex min-h-screen items-center justify-center py-10">
+    <div className="flex items-center justify-center py-10">
       <div className="w-full max-w-md">
-        <Card className="border-2 shadow-lg">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-2">
-              <div className="rounded-full bg-primary/10 p-3">
+        <Card className="border shadow-lg overflow-hidden">
+          <CardHeader className="space-y-1 text-center bg-primary/5 border-b pb-8">
+            <div className="flex justify-center mb-4">
+              <div className="rounded-full bg-primary/10 p-4 ring-2 ring-primary/20">
                 <LogIn className="h-6 w-6 text-primary" />
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function LoginPage() {
               Digite seu email e senha para entrar
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -133,17 +133,17 @@ export default function LoginPage() {
                     Esqueceu sua senha?
                   </Link>
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full font-semibold" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Entrar
                 </Button>
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col">
-            <div className="mt-2 text-center text-sm">
+          <CardFooter className="flex flex-col bg-muted/30 border-t py-6">
+            <div className="text-center text-sm">
               Não tem uma conta?{' '}
-              <Link href="/register" className="font-medium text-primary hover:underline">
+              <Link href="/register" className="font-medium text-primary hover:underline transition-colors">
                 Cadastre-se
               </Link>
             </div>

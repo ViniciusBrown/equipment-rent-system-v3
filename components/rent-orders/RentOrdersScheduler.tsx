@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { RentOrder } from "./types"
 import {
@@ -104,13 +104,13 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
 
   return (
     <>
-      <div className="space-y-4 mx-auto">
-        <div className="flex items-center justify-between mb-4 gap-4">
+      <div className="space-y-4 mx-auto w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
           <h2 className="text-lg font-semibold">
             {headerTitle}
           </h2>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center">
               <div className="flex gap-1 bg-muted p-1 rounded-md">
               {(['week', 'month'] as const).map((mode) => (
                 <Button

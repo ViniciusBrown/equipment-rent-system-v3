@@ -110,12 +110,12 @@ export default function ResetPasswordConfirmPage() {
   }, [router, toast])
 
   return (
-    <div className="container flex min-h-screen items-center justify-center py-10">
+    <div className="flex items-center justify-center py-10">
       <div className="w-full max-w-md">
-        <Card className="border-2 shadow-lg">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-2">
-              <div className="rounded-full bg-primary/10 p-3">
+        <Card className="border shadow-lg overflow-hidden">
+          <CardHeader className="space-y-1 text-center bg-primary/5 border-b pb-8">
+            <div className="flex justify-center mb-4">
+              <div className="rounded-full bg-primary/10 p-4 ring-2 ring-primary/20">
                 <ShieldCheck className="h-6 w-6 text-primary" />
               </div>
             </div>
@@ -124,7 +124,7 @@ export default function ResetPasswordConfirmPage() {
               Digite sua nova senha
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {isSubmitted ? (
               <div className="flex flex-col space-y-4">
                 <div className="bg-muted p-4 rounded-md text-center">
@@ -165,7 +165,7 @@ export default function ResetPasswordConfirmPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full font-semibold" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Redefinir Senha
                   </Button>
@@ -173,6 +173,13 @@ export default function ResetPasswordConfirmPage() {
               </Form>
             )}
           </CardContent>
+          <CardFooter className="flex flex-col bg-muted/30 border-t py-6">
+            <div className="text-center text-sm">
+              <Link href="/login" className="font-medium text-primary hover:underline transition-colors">
+                Voltar para o login
+              </Link>
+            </div>
+          </CardFooter>
         </Card>
       </div>
     </div>

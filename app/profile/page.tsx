@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="container py-10">
+      <div className="py-10">
         <div className="flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -91,7 +91,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container py-10">
+    <div className="py-10">
       <div className="mx-auto max-w-2xl">
         <div className="space-y-6">
           <div>
@@ -101,7 +101,7 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <div className="border rounded-lg p-6">
+          <div className="border rounded-lg p-6 shadow-sm">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -130,7 +130,7 @@ export default function ProfilePage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" className="font-semibold" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Salvar Alterações
                 </Button>

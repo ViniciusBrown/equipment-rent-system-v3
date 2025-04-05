@@ -7,7 +7,7 @@ export default function RentalConfirmationPage({ searchParams }: { searchParams:
   const referenceNumber = searchParams.ref || "N/A"
 
   return (
-    <div className="container flex h-[80vh] flex-col items-center justify-center py-10">
+    <div className="flex h-[80vh] flex-col items-center justify-center py-10">
       <div className="mx-auto max-w-md text-center">
         <div className="mb-4 flex justify-center">
           <CheckCircle className="h-16 w-16 text-green-500" />
