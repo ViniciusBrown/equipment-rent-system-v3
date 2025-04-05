@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import type { RentOrder } from "./types"
-import { getStatusColor } from "./utils"
+import { getStatusColor, translateStatus } from "./utils"
 import { WeekViewCardContent } from "./WeekViewCardContent"
 
 interface MonthViewRentOrderCardProps {
@@ -28,7 +28,7 @@ export function MonthViewRentOrderCard({ order, onViewDetails }: MonthViewRentOr
                 variant="secondary"
                 className={`${getStatusColor(order.status)} text-[10px] px-1 py-0`}
               >
-                {order.status}
+                {translateStatus(order.status)}
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground truncate">

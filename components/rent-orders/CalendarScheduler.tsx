@@ -28,7 +28,7 @@ export function CalendarScheduler({
   const renderColumnTitle = (title: string | MonthCellTitle, date: Date, orderCount: number) => {
     if (typeof title === 'string') return title;
 
-    const monthLabel = date.toLocaleDateString('en-US', { month: 'short' })
+    const monthLabel = date.toLocaleDateString('pt-BR', { month: 'short' })
 
     return (
       <div className="flex flex-col items-center gap-0.5">

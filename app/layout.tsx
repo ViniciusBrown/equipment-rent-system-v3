@@ -30,12 +30,6 @@ export default function RootLayout({
                 Aluguel de Equipamentos
               </Link>
               <nav className="flex items-center gap-6">
-                <Link href="/" className="text-sm font-medium">
-                  Pedidos de Aluguel
-                </Link>
-                <Link href="/tables" className="text-sm font-medium">
-                  Tabelas
-                </Link>
                 <ThemeToggle />
               </nav>
             </div>

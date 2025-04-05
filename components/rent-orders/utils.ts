@@ -1,5 +1,20 @@
 import type { RentOrder } from "./types"
 
+export const translateStatus = (status: RentOrder['status']) => {
+  switch (status) {
+    case 'pending':
+      return 'Pendente'
+    case 'approved':
+      return 'Aprovado'
+    case 'rejected':
+      return 'Rejeitado'
+    case 'completed':
+      return 'Concluído'
+    default:
+      return status
+  }
+}
+
 export const getStatusColor = (status: RentOrder['status']) => {
   switch (status) {
     case 'approved':

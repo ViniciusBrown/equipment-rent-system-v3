@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import type { RentOrder } from "./types"
-import { getStatusColor } from "./utils"
+import { getStatusColor, translateStatus } from "./utils"
 import { EquipmentBadge } from "./EquipmentBadge"
 
 interface WeekViewCardContentProps {
@@ -43,7 +43,7 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
             variant="secondary"
             className={`${getStatusColor(order.status)} text-xs px-2 py-0.5`}
           >
-            {order.status}
+            {translateStatus(order.status)}
           </Badge>
         </div>
       </CardHeader>
