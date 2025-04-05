@@ -3,21 +3,22 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
 import type { RentOrder } from "./types"
 import {
   ViewMode,
   CalendarColumn,
-  formatDate,
   formatDateForColumn,
-  getDaysInWeek,
   getDaysInMonth
 } from "@/components/rent-orders/calendarTypes"
-import { categorizeOrdersByDate } from "./utils"
-import { MonthViewRentOrderCard } from "./MonthViewRentOrderCard"
-import { WeekViewRentOrderCard } from "./WeekViewRentOrderCard"
+import { categorizeOrdersByDate, getStretchedRentOrderInfo } from "./utils"
+import { StretchedRentOrderCard } from "./StretchedRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
 import { RentOrderDialog } from "./RentOrderDialog"
+
+// Note: To restore Week view in the future, uncomment these imports:
+// import { cn } from "@/lib/utils"
+// import { formatDate, getDaysInWeek } from "@/components/rent-orders/calendarTypes"
+// import { WeekViewRentOrderCard } from "./WeekViewRentOrderCard"
 
 
 interface RentOrdersSchedulerProps {
@@ -30,12 +31,20 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   today.setHours(0, 0, 0, 0)
 
   const [currentDate, setCurrentDate] = useState(today)
-  const [viewMode, setViewMode] = useState<ViewMode>('week')
+  // Month view is now the only view mode
+  // To restore Week view in the future:
+  // 1. Change this back to useState<ViewMode>('week')
+  // 2. Restore the view mode selector buttons below
+  // 3. Copy back the components from week-view-archive folder
+  const [viewMode] = useState<ViewMode>('month')
   const [selectedOrder, setSelectedOrder] = useState<RentOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handlePrevious = () => {
     const newDate = new Date(currentDate)
+    // Only Month view is active now
+    // To restore Week view, uncomment the switch statement
+    /*
     switch (viewMode) {
       case 'week':
         newDate.setDate(currentDate.getDate() - 7)
@@ -44,11 +53,16 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
         newDate.setMonth(currentDate.getMonth() - 1)
         break
     }
+    */
+    newDate.setMonth(currentDate.getMonth() - 1)
     setCurrentDate(newDate)
   }
 
   const handleNext = () => {
     const newDate = new Date(currentDate)
+    // Only Month view is active now
+    // To restore Week view, uncomment the switch statement
+    /*
     switch (viewMode) {
       case 'week':
         newDate.setDate(currentDate.getDate() + 7)
@@ -57,6 +71,8 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
         newDate.setMonth(currentDate.getMonth() + 1)
         break
     }
+    */
+    newDate.setMonth(currentDate.getMonth() + 1)
     setCurrentDate(newDate)
   }
 
@@ -67,6 +83,9 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   }
 
   const getColumns = (): CalendarColumn[] => {
+    // Only Month view is active now
+    // To restore Week view, uncomment the switch statement
+    /*
     switch (viewMode) {
       case 'week':
         return getDaysInWeek(currentDate).map(date => ({
@@ -81,25 +100,51 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
           orders: categorizeOrdersByDate(initialRentOrders, date)
         }))
     }
+    */
+    return getDaysInMonth(currentDate).map(date => ({
+      date,
+      title: formatDateForColumn(date, 'month-cell'),
+      orders: categorizeOrdersByDate(initialRentOrders, date)
+    }))
   }
 
   const getHeaderTitle = () => {
+    // Only Month view is active now
+    // To restore Week view, uncomment the switch statement
+    /*
     switch (viewMode) {
       case 'week':
         return `Semana de ${formatDate(currentDate)}`;
       case 'month':
         return currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     }
+    */
+    return currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   }
 
   const columns = getColumns()
   const headerTitle = getHeaderTitle()
 
-  const renderCard = (order: RentOrder) => {
-    if (viewMode === 'month') {
-      return <MonthViewRentOrderCard key={order.id} order={order} onViewDetails={handleViewDetails} />
-    }
-    return <WeekViewRentOrderCard key={order.id} order={order} onViewDetails={handleViewDetails} />
+  // Get all dates in the current month view
+  const allDates = columns.map(column => column.date)
+
+  const renderCard = (order: RentOrder, date: Date) => {
+    // Get information about how this order relates to the current date
+    const orderInfo = getStretchedRentOrderInfo(order, date, allDates)
+
+    return (
+      <StretchedRentOrderCard
+        key={order.id}
+        order={order}
+        onViewDetails={handleViewDetails}
+        date={date}
+        isStart={orderInfo.isStart}
+        isEnd={orderInfo.isEnd}
+        isBetween={orderInfo.isBetween}
+        isFirst={orderInfo.isFirst}
+        isLast={orderInfo.isLast}
+      />
+    )
   }
 
   return (
@@ -110,6 +155,8 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
             {headerTitle}
           </h2>
           <div className="flex flex-wrap items-center gap-4">
+            {/* View mode selector removed - Month view is now the only view
+            To restore Week view in the future, uncomment this section:
             <div className="flex items-center">
               <div className="flex gap-1 bg-muted p-1 rounded-md">
               {(['week', 'month'] as const).map((mode) => (
@@ -128,6 +175,7 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
               ))}
               </div>
             </div>
+            */}
 
             {/* Dialog for viewing/editing rent orders */}
             <RentOrderDialog
@@ -157,8 +205,6 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
           renderCard={renderCard}
         />
       </div>
-
-
     </>
   )
 }

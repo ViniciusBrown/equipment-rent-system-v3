@@ -4,22 +4,30 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import type { RentOrder } from "./types"
-import { getStatusColor, translateStatus } from "./utils"
+import { getStatusColor, translateStatus, getRentDateType, getRentDateTypeStyle } from "./utils"
 import { WeekViewCardContent } from "./WeekViewCardContent"
+import { cn } from "@/lib/utils"
 
 interface MonthViewRentOrderCardProps {
   order: RentOrder
   onViewDetails: (order: RentOrder) => void
+  date: Date
 }
 
-export function MonthViewRentOrderCard({ order, onViewDetails }: MonthViewRentOrderCardProps) {
+export function MonthViewRentOrderCard({ order, onViewDetails, date }: MonthViewRentOrderCardProps) {
+  const dateType = getRentDateType(order, date)
+  const dateTypeStyle = getRentDateTypeStyle(dateType)
+
   return (
     <HoverCard openDelay={300} closeDelay={200}>
       <HoverCardTrigger asChild>
         <Card
           key={order.id}
           onClick={() => onViewDetails(order)}
-          className="cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-transform will-change-transform hover:scale-[1.02] bg-card dark:bg-secondary/40 shadow-sm dark:shadow-md border-border/30 dark:border-border/50"
+          className={cn(
+            "cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-transform will-change-transform hover:scale-[1.02] shadow-sm dark:shadow-md border-border/30 dark:border-border/50",
+            dateTypeStyle || "bg-card dark:bg-secondary/40"
+          )}
         >
           <CardContent className="p-2 space-y-1">
             <div className="flex items-center justify-between">
