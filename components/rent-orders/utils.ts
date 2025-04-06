@@ -144,7 +144,7 @@ export const categorizeOrdersByDate = (orders: RentOrder[], date: Date) => {
   })
 }
 
-// New utility functions for stretched cards
+// Utility functions for stretched cards
 
 export interface StretchedRentOrderInfo {
   order: RentOrder
@@ -156,15 +156,34 @@ export interface StretchedRentOrderInfo {
   slotIndex: number
 }
 
-// Function to organize rent orders into slots
-export const organizeOrdersIntoSlots = (orders: RentOrder[]): Map<string, number> => {
+// Helper function to check if a date is in a specific week
+export const isDateInWeek = (date: Date, weekDates: Date[]): boolean => {
+  const dateTime = new Date(date).setHours(0, 0, 0, 0);
+  return weekDates.some(weekDate => {
+    const weekDateTime = new Date(weekDate).setHours(0, 0, 0, 0);
+    return weekDateTime === dateTime;
+  });
+};
+
+// Helper function to get the week number from a date
+export const getWeekNumber = (date: Date): number => {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const dayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+  // Calculate the week number (0-indexed)
+  return Math.floor((date.getDate() + dayOfWeek - 1) / 7);
+};
+
+// Function to organize rent orders into slots for a specific week
+export const organizeOrdersIntoWeeklySlots = (
+  orders: RentOrder[],
+  weekDates: Date[]
+): Map<string, number> => {
   const orderSlots = new Map<string, number>();
 
-  // First, group orders by their overlapping date ranges
-  const dateRanges: { order: RentOrder; startTime: number; endTime: number }[] = [];
-
-  orders.forEach(order => {
-    if (!order.originalData?.rental_start || !order.originalData?.rental_end) return;
+  // Get all orders visible in this week
+  const ordersInWeek = orders.filter(order => {
+    if (!order.originalData?.rental_start || !order.originalData?.rental_end) return false;
 
     const startDate = new Date(order.originalData.rental_start);
     startDate.setHours(0, 0, 0, 0);
@@ -172,49 +191,146 @@ export const organizeOrdersIntoSlots = (orders: RentOrder[]): Map<string, number
     const endDate = new Date(order.originalData.rental_end);
     endDate.setHours(0, 0, 0, 0);
 
-    dateRanges.push({
-      order,
-      startTime: startDate.getTime(),
-      endTime: endDate.getTime()
+    // Check if any day in the week falls within the order's date range
+    return weekDates.some(date => {
+      const dateTime = new Date(date).setHours(0, 0, 0, 0);
+      return dateTime >= startDate.getTime() && dateTime <= endDate.getTime();
     });
   });
 
-  // Sort by start date
-  dateRanges.sort((a, b) => a.startTime - b.startTime);
+  // Track orders as we see them for the first time
+  const seenReferenceNumbers = new Set<string>();
+  const orderedReferenceNumbers: string[] = [];
 
-  // Assign slots based on overlapping date ranges
-  const assignedSlots: number[] = [];
+  // Step 1: Go through each day of the week in order
+  for (const date of weekDates) {
+    // Step 2: Get all orders for this day
+    const ordersForDay = ordersInWeek.filter(order => {
+      const startDate = new Date(order.originalData!.rental_start);
+      startDate.setHours(0, 0, 0, 0);
 
-  dateRanges.forEach(({ order, startTime, endTime }) => {
-    // Find the first available slot that doesn't overlap
-    let slot = 0;
-    let found = false;
+      const endDate = new Date(order.originalData!.rental_end);
+      endDate.setHours(0, 0, 0, 0);
 
-    while (!found) {
-      // Check if this slot is already used by an overlapping order
-      const isOverlapping = dateRanges.some(range => {
-        const otherOrder = range.order;
-        const otherSlot = orderSlots.get(otherOrder.id);
+      const currentDate = new Date(date);
+      currentDate.setHours(0, 0, 0, 0);
 
-        if (otherSlot === slot) {
-          // Check if date ranges overlap
-          return (
-            (startTime <= range.endTime && endTime >= range.startTime) ||
-            (range.startTime <= endTime && range.endTime >= startTime)
-          );
-        }
-        return false;
-      });
+      return currentDate.getTime() >= startDate.getTime() &&
+             currentDate.getTime() <= endDate.getTime();
+    });
 
-      if (!isOverlapping) {
-        found = true;
-      } else {
-        slot++;
+    // Step 3: Process each order in this day as they appear (no sorting)
+    for (const order of ordersForDay) {
+      const refNumber = order.originalData!.reference_number;
+
+      // If we haven't seen this reference number before, add it to our ordered list
+      if (!seenReferenceNumbers.has(refNumber)) {
+        seenReferenceNumbers.add(refNumber);
+        orderedReferenceNumbers.push(refNumber);
       }
     }
+  }
 
-    orderSlots.set(order.id, slot);
-    assignedSlots.push(slot);
+  // Step 5: Assign slot indices based on the order we first saw each reference number
+  orderedReferenceNumbers.forEach((refNumber, index) => {
+    // Find all orders with this reference number
+    const ordersWithRefNumber = ordersInWeek.filter(
+      order => order.originalData!.reference_number === refNumber
+    );
+
+    // Assign the same slot index to all orders with this reference number
+    ordersWithRefNumber.forEach(order => {
+      orderSlots.set(order.id, index);
+    });
+  });
+
+  return orderSlots;
+};
+
+// Legacy function for backward compatibility
+export const organizeOrdersIntoSlots = (orders: RentOrder[]): Map<string, number> => {
+  const orderSlots = new Map<string, number>();
+
+  // Group orders by customer first to keep them visually together
+  const customerGroups: { [key: string]: RentOrder[] } = {};
+
+  orders.forEach(order => {
+    if (!order.originalData?.rental_start || !order.originalData?.rental_end) return;
+
+    const customer = order.customer;
+    if (!customerGroups[customer]) {
+      customerGroups[customer] = [];
+    }
+    customerGroups[customer].push(order);
+  });
+
+  // Process each customer group separately
+  let currentSlot = 0;
+
+  // Sort customers alphabetically for consistent ordering
+  const sortedCustomers = Object.keys(customerGroups).sort();
+
+  sortedCustomers.forEach(customer => {
+    const customerOrders = customerGroups[customer];
+
+    // Sort orders by start date within each customer group
+    customerOrders.sort((a, b) => {
+      const aStart = new Date(a.originalData!.rental_start).getTime();
+      const bStart = new Date(b.originalData!.rental_start).getTime();
+      return aStart - bStart;
+    });
+
+    // Process each order in the customer group
+    const customerSlots: number[] = [];
+
+    customerOrders.forEach(order => {
+      const startDate = new Date(order.originalData!.rental_start);
+      startDate.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(order.originalData!.rental_end);
+      endDate.setHours(0, 0, 0, 0);
+
+      // Find the first available slot for this order
+      let slot = 0;
+      let found = false;
+
+      while (!found) {
+        // Check if this slot is already used by an overlapping order from the same customer
+        const isOverlapping = customerOrders.some(otherOrder => {
+          if (otherOrder.id === order.id) return false; // Skip self
+
+          const otherSlot = orderSlots.get(otherOrder.id);
+          if (otherSlot !== slot) return false; // Different slot, no overlap
+
+          const otherStart = new Date(otherOrder.originalData!.rental_start);
+          otherStart.setHours(0, 0, 0, 0);
+
+          const otherEnd = new Date(otherOrder.originalData!.rental_end);
+          otherEnd.setHours(0, 0, 0, 0);
+
+          // Check if date ranges overlap
+          return (
+            (startDate.getTime() <= otherEnd.getTime() && endDate.getTime() >= otherStart.getTime()) ||
+            (otherStart.getTime() <= endDate.getTime() && otherEnd.getTime() >= startDate.getTime())
+          );
+        });
+
+        if (!isOverlapping) {
+          found = true;
+        } else {
+          slot++;
+        }
+      }
+
+      // Assign the slot
+      orderSlots.set(order.id, currentSlot + slot);
+      customerSlots.push(slot);
+    });
+
+    // Move to the next set of slots for the next customer
+    // Add 1 to the max slot used to create spacing between customer groups
+    const maxSlotUsed = Math.max(0, ...customerSlots);
+    currentSlot += maxSlotUsed + 1;
   });
 
   return orderSlots;

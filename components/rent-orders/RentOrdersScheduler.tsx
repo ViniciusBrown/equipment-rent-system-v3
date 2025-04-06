@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { RentOrder } from "./types"
@@ -10,7 +10,7 @@ import {
   formatDateForColumn,
   getDaysInMonth
 } from "@/components/rent-orders/calendarTypes"
-import { categorizeOrdersByDate, getStretchedRentOrderInfo, organizeOrdersIntoSlots, translateStatus } from "./utils"
+import { categorizeOrdersByDate, getStretchedRentOrderInfo, organizeOrdersIntoWeeklySlots, translateStatus } from "./utils"
 import { StretchedRentOrderCard } from "./StretchedRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
 import { RentOrderDialog } from "./RentOrderDialog"
@@ -41,6 +41,16 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   const [selectedOrder, setSelectedOrder] = useState<RentOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+
+  // Add event listener for clearing selection
+  useEffect(() => {
+    const handleClearSelection = () => setSelectedOrderId(null);
+    document.addEventListener('clearSelection', handleClearSelection);
+    return () => {
+      document.removeEventListener('clearSelection', handleClearSelection);
+    };
+  }, [])
 
   // Status filter options
   const statusOptions: ComboboxOption[] = [
@@ -152,11 +162,54 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   const allOrders = filteredOrders.filter(order =>
     order.originalData?.rental_start && order.originalData?.rental_end
   )
-  const orderSlots = organizeOrdersIntoSlots(allOrders)
+
+  // Create a map to store slot assignments for each week
+  const weeklySlots = new Map<number, Map<string, number>>();
+
+  // Group dates by week
+  const weekGroups: Date[][] = [];
+  let currentWeek: Date[] = [];
+
+  // Group dates into weeks (7 days each, starting from Sunday)
+  allDates.forEach((date, index) => {
+    currentWeek.push(date);
+
+    // When we reach the end of a week (Saturday) or the end of the array
+    if (date.getDay() === 6 || index === allDates.length - 1) {
+      weekGroups.push([...currentWeek]);
+      currentWeek = [];
+    }
+  });
+
+  // Calculate slots for each week
+  weekGroups.forEach((weekDates, weekIndex) => {
+    weeklySlots.set(weekIndex, organizeOrdersIntoWeeklySlots(allOrders, weekDates));
+  });
+
+  // Function to get the slot for an order based on the date
+  const getOrderSlot = (orderId: string, date: Date): number => {
+    // Find which week this date belongs to
+    const weekIndex = weekGroups.findIndex(weekDates =>
+      weekDates.some(weekDate =>
+        weekDate.getDate() === date.getDate() &&
+        weekDate.getMonth() === date.getMonth() &&
+        weekDate.getFullYear() === date.getFullYear()
+      )
+    );
+
+    if (weekIndex === -1) return 0;
+
+    // Get the slots for this week
+    const weekSlots = weeklySlots.get(weekIndex);
+    if (!weekSlots) return 0;
+
+    // Return the slot for this order in this week
+    return weekSlots.get(orderId) || 0;
+  }
 
   const renderCard = (order: RentOrder, date: Date) => {
-    // Get the slot index for this order
-    const slotIndex = orderSlots.get(order.id) || 0
+    // Get the slot index for this order based on which week it's in
+    const slotIndex = getOrderSlot(order.id, date)
 
     // Get information about how this order relates to the current date
     const orderInfo = getStretchedRentOrderInfo(order, date, allDates, slotIndex)
@@ -173,13 +226,23 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
         isFirst={orderInfo.isFirst}
         isLast={orderInfo.isLast}
         slotIndex={orderInfo.slotIndex}
+        isSelected={selectedOrderId === order.id}
+        onSelect={(orderId) => setSelectedOrderId(orderId)}
       />
     )
   }
 
   return (
     <>
-      <div className="space-y-4 mx-auto w-full overflow-visible">
+      <div
+        className="space-y-4 mx-auto w-full overflow-visible"
+        onClick={(e) => {
+          // Only clear selection if clicking directly on the container, not on its children
+          if (e.target === e.currentTarget) {
+            setSelectedOrderId(null);
+          }
+        }}
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
           <h2 className="text-lg font-semibold">
             {headerTitle}
@@ -245,6 +308,9 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
           today={today}
           currentDate={currentDate}
           renderCard={renderCard}
+          selectedOrderId={selectedOrderId}
+          weeklySlots={weeklySlots}
+          weekGroups={weekGroups}
         />
       </div>
     </>

@@ -83,11 +83,29 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'glow-pulse': {
+          '0%, 100%': {
+            boxShadow: '0 0 15px rgba(var(--primary), 0.4)'
+          },
+          '50%': {
+            boxShadow: '0 0 20px rgba(var(--primary), 0.6)'
+          }
+        },
+        'glow-pulse-dark': {
+          '0%, 100%': {
+            boxShadow: '0 0 15px rgba(var(--primary), 0.5)'
+          },
+          '50%': {
+            boxShadow: '0 0 25px rgba(var(--primary), 0.7)'
+          }
+        }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'glow': 'glow-pulse 2s ease-in-out infinite',
+        'glow-dark': 'glow-pulse-dark 2s ease-in-out infinite'
   		}
   	}
   },
