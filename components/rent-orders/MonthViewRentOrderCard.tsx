@@ -7,6 +7,7 @@ import type { RentOrder } from "./types"
 import { getStatusColor, translateStatus, getRentDateType, getRentDateTypeStyle } from "./utils"
 import { WeekViewCardContent } from "./WeekViewCardContent"
 import { cn } from "@/lib/utils"
+import { ArrowRight } from "lucide-react"
 
 interface MonthViewRentOrderCardProps {
   order: RentOrder
@@ -39,9 +40,18 @@ export function MonthViewRentOrderCard({ order, onViewDetails, date }: MonthView
                 {translateStatus(order.status)}
               </Badge>
             </div>
-            <p className="text-[11px] text-muted-foreground truncate">
-              {order.reference}
-            </p>
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground w-full">
+              <span className="truncate">{order.reference}</span>
+              <span className="flex items-center gap-0.5 flex-shrink-0 ml-1">
+                <span className="text-[11px] text-muted-foreground tabular-nums">
+                  {new Date(order.originalData.rental_start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                </span>
+                <ArrowRight className="h-2 w-2 text-muted-foreground" />
+                <span className="text-[11px] text-muted-foreground tabular-nums">
+                  {new Date(order.originalData.rental_end).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                </span>
+              </span>
+            </div>
           </CardContent>
         </Card>
       </HoverCardTrigger>
