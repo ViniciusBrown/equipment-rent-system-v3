@@ -1,5 +1,64 @@
 import type { RentOrder } from "./types"
 
+// Color pool for client-based coloring with alternating tones
+const CLIENT_COLORS = [
+  // Red tone
+  { bg: 'bg-red-100 dark:bg-red-900/50', border: 'border-red-400 dark:border-red-300' },
+  // Blue tone
+  { bg: 'bg-blue-100 dark:bg-blue-900/50', border: 'border-blue-400 dark:border-blue-300' },
+  // Green tone
+  { bg: 'bg-emerald-100 dark:bg-emerald-900/50', border: 'border-emerald-400 dark:border-emerald-300' },
+  // Orange tone
+  { bg: 'bg-orange-100 dark:bg-orange-900/50', border: 'border-orange-400 dark:border-orange-300' },
+  // Purple tone
+  { bg: 'bg-purple-100 dark:bg-purple-900/50', border: 'border-purple-400 dark:border-purple-300' },
+  // Teal tone
+  { bg: 'bg-teal-100 dark:bg-teal-900/50', border: 'border-teal-400 dark:border-teal-300' },
+  // Pink tone
+  { bg: 'bg-pink-100 dark:bg-pink-900/50', border: 'border-pink-400 dark:border-pink-300' },
+  // Cyan tone
+  { bg: 'bg-cyan-100 dark:bg-cyan-900/50', border: 'border-cyan-400 dark:border-cyan-300' },
+  // Lime tone
+  { bg: 'bg-lime-100 dark:bg-lime-900/50', border: 'border-lime-400 dark:border-lime-300' },
+  // Amber tone
+  { bg: 'bg-amber-100 dark:bg-amber-900/50', border: 'border-amber-400 dark:border-amber-300' },
+  // Indigo tone
+  { bg: 'bg-indigo-100 dark:bg-indigo-900/50', border: 'border-indigo-400 dark:border-indigo-300' },
+  // Yellow tone
+  { bg: 'bg-yellow-100 dark:bg-yellow-900/50', border: 'border-yellow-400 dark:border-yellow-300' },
+  // Fuchsia tone
+  { bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/50', border: 'border-fuchsia-400 dark:border-fuchsia-300' },
+  // Sky tone
+  { bg: 'bg-sky-100 dark:bg-sky-900/50', border: 'border-sky-400 dark:border-sky-300' },
+  // Rose tone
+  { bg: 'bg-rose-100 dark:bg-rose-900/50', border: 'border-rose-400 dark:border-rose-300' },
+  // Green tone (different shade)
+  { bg: 'bg-green-100 dark:bg-green-900/50', border: 'border-green-400 dark:border-green-300' },
+  // Violet tone
+  { bg: 'bg-violet-100 dark:bg-violet-900/50', border: 'border-violet-400 dark:border-violet-300' },
+  // Slate tone
+  { bg: 'bg-slate-100 dark:bg-slate-800/60', border: 'border-slate-400 dark:border-slate-300' },
+  // Stone tone
+  { bg: 'bg-stone-100 dark:bg-stone-800/60', border: 'border-stone-400 dark:border-stone-300' },
+  // Neutral tone
+  { bg: 'bg-neutral-100 dark:bg-neutral-800/60', border: 'border-neutral-400 dark:border-neutral-300' },
+]
+
+// Client color cache to ensure the same client always gets the same color
+const clientColorCache = new Map<string, number>()
+let nextColorIndex = 0
+
+// Get color for a specific client
+export const getClientColor = (clientName: string) => {
+  if (!clientColorCache.has(clientName)) {
+    clientColorCache.set(clientName, nextColorIndex)
+    nextColorIndex = (nextColorIndex + 1) % CLIENT_COLORS.length
+  }
+
+  const colorIndex = clientColorCache.get(clientName) || 0
+  return CLIENT_COLORS[colorIndex]
+}
+
 export const translateStatus = (status: RentOrder['status']) => {
   switch (status) {
     case 'pending':

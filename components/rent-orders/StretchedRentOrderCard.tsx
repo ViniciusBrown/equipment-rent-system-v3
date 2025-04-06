@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import type { RentOrder } from "./types"
-import { getStatusColor, translateStatus } from "./utils"
+import { getStatusColor, translateStatus, getClientColor } from "./utils"
 import { WeekViewCardContent } from "./WeekViewCardContent"
 import { cn } from "@/lib/utils"
 
@@ -23,35 +23,29 @@ interface StretchedRentOrderCardProps {
 export function StretchedRentOrderCard({
   order,
   onViewDetails,
-  date,
+  // date is not used directly but kept for API consistency
+  date: _date,
   isStart,
   isEnd,
   isBetween,
-  isFirst,
-  isLast,
+  // isFirst and isLast are not used directly but kept for API consistency
+  isFirst: _isFirst,
+  isLast: _isLast,
   slotIndex
 }: StretchedRentOrderCardProps) {
-  // Determine the style based on the date type
-  let cardStyle = ""
+  // Get client-specific colors
+  const clientColors = getClientColor(order.customer)
 
+  // Determine the style based on the client and date type
+  let cardStyle = `${clientColors.bg} border rounded-md ${clientColors.border}`
+
+  // Add specific margins based on card type
   if (isStart) {
-    cardStyle = "bg-green-200 dark:bg-green-800/50 rounded-md"
+    cardStyle += " ml-[5px] mr-0"
   } else if (isEnd) {
-    cardStyle = "bg-blue-200 dark:bg-blue-800/50 rounded-md"
+    cardStyle += " ml-0 mr-[10px]"
   } else if (isBetween) {
-    cardStyle = "bg-gray-200 dark:bg-gray-700/50 rounded-md"
-  }
-
-  // All cards should have the same margins
-  // No need for negative margins anymore
-
-  // Add specific styles for all cards when they show content
-  if (isStart) {
-    cardStyle += " z-10"
-  } else if (isEnd) {
-    cardStyle += " z-10"
-  } else if (isBetween) {
-    cardStyle += " z-5"
+    cardStyle += " mx-0"
   }
 
   // Show content on all cards in the rental period (start, end, and in-between)
@@ -67,7 +61,8 @@ export function StretchedRentOrderCard({
         <Card
           onClick={() => onViewDetails(order)}
           className={cn(
-            "cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-transform will-change-transform hover:scale-[1.02] shadow-sm dark:shadow-md border-border/30 dark:border-border/50 min-h-[60px] absolute w-[calc(100%-0.5rem)]",
+            "cursor-pointer hover:shadow-lg dark:hover:shadow-primary/10 transition-all will-change-transform hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-125 shadow-sm dark:shadow-md min-h-[60px] absolute z-0 max-h-[65px]",
+            isStart || isEnd ? "w-[calc(100%-5px)]" : "w-full",
             cardStyle || "bg-card dark:bg-secondary/40"
           )}
           style={{ top: slotTopPosition }}
@@ -76,22 +71,7 @@ export function StretchedRentOrderCard({
             <CardContent className="p-2 space-y-1">
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center justify-between gap-1 w-full">
-                  <div className="flex items-center gap-1 min-w-0 flex-shrink">
-                    {isStart && (
-                      <Badge variant="outline" className="bg-green-400/20 text-green-600 dark:text-green-400 border-green-400/30 text-[9px] px-1 py-0 h-4 flex-shrink-0">
-                        Início
-                      </Badge>
-                    )}
-                    {isEnd && (
-                      <Badge variant="outline" className="bg-blue-400/20 text-blue-600 dark:text-blue-400 border-blue-400/30 text-[9px] px-1 py-0 h-4 flex-shrink-0">
-                        Fim
-                      </Badge>
-                    )}
-                    {isBetween && (
-                      <Badge variant="outline" className="bg-gray-400/20 text-gray-600 dark:text-gray-400 border-gray-400/30 text-[9px] px-1 py-0 h-4 flex-shrink-0">
-                        Alugado
-                      </Badge>
-                    )}
+                  <div className="flex items-center min-w-0 flex-shrink">
                     <span className="text-xs font-medium truncate min-w-0 flex-1">{order.customer}</span>
                   </div>
                   <Badge
@@ -114,7 +94,7 @@ export function StretchedRentOrderCard({
           )}
         </Card>
       </HoverCardTrigger>
-      <HoverCardContent side="right" align="start" className="w-[280px] sm:w-[350px] p-0 shadow-lg dark:shadow-primary/5">
+      <HoverCardContent side="right" align="start" className="w-[280px] sm:w-[350px] p-0 shadow-lg dark:shadow-primary/5 z-50">
         <Card className="border-0 shadow-none dark:bg-secondary/40">
           <WeekViewCardContent order={order} compact={true} />
         </Card>

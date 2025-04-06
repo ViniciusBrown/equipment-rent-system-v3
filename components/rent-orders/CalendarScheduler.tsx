@@ -19,7 +19,7 @@ export function CalendarScheduler({
   currentDate,
   renderCard
 }: CalendarSchedulerProps) {
-  const columnClassName = 'w-full min-h-[100px] bg-background'
+  const columnClassName = 'w-full min-h-[100px] bg-background relative'
   const gridClassName = {
     week: 'grid grid-cols-1 sm:grid-cols-3 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border',
     month: 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border'
@@ -58,9 +58,9 @@ export function CalendarScheduler({
       {columns.map((column) => (
         <div key={column.date.toISOString()} className={`space-y-0 ${columnClassName}`}>
           <div className={cn(
-            'relative p-2',
+            'relative p-2 z-10',
             column.date.getTime() === today.getTime()
-              ? 'bg-primary/20 dark:bg-primary/30 border-primary/30 dark:border-primary/50 border-2 shadow-sm relative'
+              ? 'bg-primary/20 dark:bg-primary/30 border-primary/30 dark:border-primary/50 border-1 shadow-sm relative'
               : 'bg-primary/5 dark:bg-secondary/80 border-1'
           )}>
             <div className="text-center flex flex-col items-center py-1">
@@ -76,12 +76,12 @@ export function CalendarScheduler({
           </div>
           <div className={cn(
             "relative",
-            'p-1 border-t bg-gradient-to-b from-muted/30 to-transparent',
+            'p-0 border-t bg-gradient-to-b from-muted/30 to-transparent',
             column.date.getTime() === today.getTime() && 'bg-gradient-to-b from-primary/5 dark:from-primary/10 to-transparent'
           )}>
             {/* Calculate the height based on the number of orders */}
             <div
-              className="relative px-1"
+              className="relative p-0"
               style={{
                 height: column.orders.length > 0 ? `${column.orders.length * 70 + 10}px` : '80px'
               }}
