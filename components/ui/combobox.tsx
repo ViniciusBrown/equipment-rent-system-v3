@@ -1,11 +1,10 @@
 'use client'
 
 import * as React from 'react'
-import { Check, ChevronDown, X } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,
@@ -98,17 +97,7 @@ export function MultiSelect({
   emptyText = 'No options found.',
   className,
 }: MultiSelectProps) {
-  const [searchTerm, setSearchTerm] = React.useState('')
   const [isOpen, setIsOpen] = React.useState(false)
-
-  // Filter options based on search term
-  const filteredOptions = React.useMemo(() => {
-    if (!searchTerm) return options
-
-    return options.filter(option =>
-      option.label.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [options, searchTerm])
 
   const handleSelect = (value: string) => {
     const newSelected = selected.includes(value)
@@ -117,41 +106,11 @@ export function MultiSelect({
     onChange(newSelected)
   }
 
-  const handleRemove = (value: string) => {
-    onChange(selected.filter(item => item !== value))
-  }
-
-  const selectedLabels = selected.map(
-    (value) => options.find((option) => option.value === value)?.label
-  ).filter(Boolean)
-
-  const buttonText = selectedLabels.length > 0
-    ? `${selectedLabels.length} selected`
-    : placeholder
+  // Always show the placeholder text regardless of selection
+  const buttonText = placeholder
 
   return (
     <div className={cn('space-y-2', className)}>
-      {/* Selected items */}
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-1 min-h-8">
-          {selected.map(value => {
-            const option = options.find(opt => opt.value === value)
-            return (
-              <Badge key={value} variant="secondary" className="flex items-center gap-1 py-1">
-                {option?.label || value}
-                <button
-                  type="button"
-                  onClick={() => handleRemove(value)}
-                  className="ml-1 rounded-full hover:bg-muted"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            )
-          })}
-        </div>
-      )}
-
       <div className="relative">
         <Button
           type="button"
@@ -167,19 +126,11 @@ export function MultiSelect({
 
         {isOpen && (
           <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-md">
-            <div className="p-2">
-              <Input
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="mb-2"
-              />
-            </div>
             <div className="max-h-60 overflow-auto p-1">
-              {filteredOptions.length === 0 ? (
+              {options.length === 0 ? (
                 <div className="px-2 py-2 text-sm text-muted-foreground">{emptyText}</div>
               ) : (
-                filteredOptions.map((option) => {
+                options.map((option) => {
                   const isSelected = selected.includes(option.value)
                   return (
                     <div

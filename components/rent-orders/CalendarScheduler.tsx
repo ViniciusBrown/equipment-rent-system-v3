@@ -19,10 +19,10 @@ export function CalendarScheduler({
   currentDate,
   renderCard
 }: CalendarSchedulerProps) {
-  const columnClassName = 'w-full min-h-[100px] bg-background relative'
+  const columnClassName = 'w-full min-h-[100px] bg-background relative overflow-visible'
   const gridClassName = {
-    week: 'grid grid-cols-1 sm:grid-cols-3 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border',
-    month: 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 border border-border rounded-lg overflow-hidden divide-x divide-border'
+    week: 'grid grid-cols-1 sm:grid-cols-3 md:grid-cols-7 border border-border rounded-lg overflow-visible divide-x divide-border',
+    month: 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 border border-border rounded-lg overflow-visible divide-x divide-border mx-1'
   }[viewMode]
 
   const renderColumnTitle = (title: string | MonthCellTitle, date: Date, orderCount: number) => {
@@ -81,7 +81,7 @@ export function CalendarScheduler({
           )}>
             {/* Calculate the height based on the number of orders */}
             <div
-              className="relative p-0"
+              className="relative p-0 overflow-visible"
               style={{
                 height: column.orders.length > 0 ? `${column.orders.length * 70 + 10}px` : '80px'
               }}

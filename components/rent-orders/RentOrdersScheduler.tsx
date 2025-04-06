@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { RentOrder } from "./types"
@@ -10,10 +10,11 @@ import {
   formatDateForColumn,
   getDaysInMonth
 } from "@/components/rent-orders/calendarTypes"
-import { categorizeOrdersByDate, getStretchedRentOrderInfo, organizeOrdersIntoSlots } from "./utils"
+import { categorizeOrdersByDate, getStretchedRentOrderInfo, organizeOrdersIntoSlots, translateStatus } from "./utils"
 import { StretchedRentOrderCard } from "./StretchedRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
 import { RentOrderDialog } from "./RentOrderDialog"
+import { MultiSelect, ComboboxOption } from "@/components/ui/combobox"
 
 // Note: To restore Week view in the future, uncomment these imports:
 // import { cn } from "@/lib/utils"
@@ -39,6 +40,15 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   const [viewMode] = useState<ViewMode>('month')
   const [selectedOrder, setSelectedOrder] = useState<RentOrder | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
+
+  // Status filter options
+  const statusOptions: ComboboxOption[] = [
+    { value: 'pending', label: translateStatus('pending') },
+    { value: 'approved', label: translateStatus('approved') },
+    { value: 'rejected', label: translateStatus('rejected') },
+    { value: 'completed', label: translateStatus('completed') }
+  ]
 
   const handlePrevious = () => {
     const newDate = new Date(currentDate)
@@ -91,20 +101,20 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
         return getDaysInWeek(currentDate).map(date => ({
           date,
           title: formatDateForColumn(date, 'month-cell'),
-          orders: categorizeOrdersByDate(initialRentOrders, date)
+          orders: categorizeOrdersByDate(filteredOrders, date)
         }))
       case 'month':
         return getDaysInMonth(currentDate).map(date => ({
           date,
           title: formatDateForColumn(date, 'month-cell'),
-          orders: categorizeOrdersByDate(initialRentOrders, date)
+          orders: categorizeOrdersByDate(filteredOrders, date)
         }))
     }
     */
     return getDaysInMonth(currentDate).map(date => ({
       date,
       title: formatDateForColumn(date, 'month-cell'),
-      orders: categorizeOrdersByDate(initialRentOrders, date)
+      orders: categorizeOrdersByDate(filteredOrders, date)
     }))
   }
 
@@ -122,6 +132,16 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
     return currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   }
 
+  // Filter orders by selected statuses
+  const filteredOrders = useMemo(() => {
+    if (selectedStatuses.length === 0) {
+      return initialRentOrders;
+    }
+    return initialRentOrders.filter(order =>
+      selectedStatuses.includes(order.status)
+    );
+  }, [initialRentOrders, selectedStatuses]);
+
   const columns = getColumns()
   const headerTitle = getHeaderTitle()
 
@@ -129,7 +149,7 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   const allDates = columns.map(column => column.date)
 
   // Organize all orders into slots
-  const allOrders = initialRentOrders.filter(order =>
+  const allOrders = filteredOrders.filter(order =>
     order.originalData?.rental_start && order.originalData?.rental_end
   )
   const orderSlots = organizeOrdersIntoSlots(allOrders)
@@ -159,7 +179,7 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
 
   return (
     <>
-      <div className="space-y-4 mx-auto w-full">
+      <div className="space-y-4 mx-auto w-full overflow-visible">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
           <h2 className="text-lg font-semibold">
             {headerTitle}
@@ -194,15 +214,27 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
               onOpenChange={setIsDialogOpen}
               initialData={selectedOrder}
             />
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handlePrevious}>
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Anterior
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleNext}>
-                Próximo
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="w-full sm:w-auto">
+                <MultiSelect
+                  options={statusOptions}
+                  selected={selectedStatuses}
+                  onChange={setSelectedStatuses}
+                  placeholder="Filtrar Status"
+                  emptyText="Nenhum status encontrado"
+                  className="min-w-[200px]"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handlePrevious}>
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Anterior
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleNext}>
+                  Próximo
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
