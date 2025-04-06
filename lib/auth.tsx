@@ -6,10 +6,12 @@ import { createContext, useContext, useEffect, useState } from 'react'
 // We'll create a new supabase client when needed
 
 // Types
+export type UserRole = 'client' | 'equipment_inspector' | 'financial_inspector' | 'manager';
+
 export type AuthUser = {
   id: string
   email: string
-  role: string
+  role: UserRole
   metadata: {
     name?: string
   }
@@ -18,7 +20,7 @@ export type AuthUser = {
 export type AuthContextType = {
   user: AuthUser | null
   loading: boolean
-  signUp: (email: string, password: string, name: string) => Promise<{
+  signUp: (email: string, password: string, name: string, role?: UserRole) => Promise<{
     error: Error | null
     data: any | null
   }>
@@ -88,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Sign up function
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string, role: UserRole = 'client') => {
     const supabase = createClientComponentClient()
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -96,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         data: {
           name,
+          role,
         },
       },
     })
