@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Supabase client
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
     // Check if the current user is a manager
     const { data: { session } } = await supabase.auth.getSession()

@@ -18,12 +18,31 @@ export type RentalRequest = {
   document_urls?: string[]
   created_at?: string
 
-  // New workflow fields
+  // Workflow status fields
   payment_status?: "pending" | "completed"
   contract_status?: "pending" | "generated" | "signed"
   initial_inspection_status?: "pending" | "completed"
   final_inspection_status?: "pending" | "completed"
   user_id?: string | null
+
+  // Financial fields
+  payment_amount?: number
+  payment_date?: string
+  payment_notes?: string
+  payment_proof_urls?: string[]
+
+  // Inspection fields
+  initial_inspection_notes?: string
+  initial_inspection_date?: string
+  initial_inspection_image_urls?: string[]
+  final_inspection_notes?: string
+  final_inspection_date?: string
+  final_inspection_image_urls?: string[]
+
+  // Contract fields
+  contract_notes?: string
+  contract_generated_url?: string
+  contract_document_urls?: string[]
 }
 
 export type RentOrder = {

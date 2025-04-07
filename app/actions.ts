@@ -68,11 +68,33 @@ export async function submitRentalRequest(formData: FormData) {
     })
 
     // Create a Supabase client with the server context
-    const serverSupabase = createServerComponentClient({ cookies })
+    const cookieStore = cookies()
+    const serverSupabase = createServerComponentClient({ cookies: () => cookieStore })
 
     // Get the current user session from the server context
     const { data: { session } } = await serverSupabase.auth.getSession()
     const userId = session?.user?.id
+
+    // Extract workflow status fields
+    const paymentStatus = formData.get("paymentStatus") as "pending" | "completed" || "pending"
+    const contractStatus = formData.get("contractStatus") as "pending" | "generated" | "signed" || "pending"
+    const initialInspectionStatus = formData.get("initialInspectionStatus") as "pending" | "completed" || "pending"
+    const finalInspectionStatus = formData.get("finalInspectionStatus") as "pending" | "completed" || "pending"
+
+    // Extract financial fields
+    const paymentAmount = formData.get("paymentAmount") ? Number.parseFloat(formData.get("paymentAmount") as string) : undefined
+    const paymentDate = formData.get("paymentDate") as string || undefined
+    const paymentNotes = formData.get("paymentNotes") as string || undefined
+
+    // Extract inspection fields
+    const initialInspectionNotes = formData.get("initialInspectionNotes") as string || undefined
+    const initialInspectionDate = formData.get("initialInspectionDate") as string || undefined
+    const finalInspectionNotes = formData.get("finalInspectionNotes") as string || undefined
+    const finalInspectionDate = formData.get("finalInspectionDate") as string || undefined
+
+    // Extract contract fields
+    const contractNotes = formData.get("contractNotes") as string || undefined
+    const contractGeneratedUrl = formData.get("contractGeneratedUrl") as string || undefined
 
     // Create the rental request object
     const rentalRequest: any = {
@@ -87,6 +109,27 @@ export async function submitRentalRequest(formData: FormData) {
       status: status,
       reference_number: referenceNumber,
       user_id: userId,
+
+      // Add workflow status fields
+      payment_status: paymentStatus,
+      contract_status: contractStatus,
+      initial_inspection_status: initialInspectionStatus,
+      final_inspection_status: finalInspectionStatus,
+
+      // Add financial fields
+      payment_amount: paymentAmount,
+      payment_date: paymentDate,
+      payment_notes: paymentNotes,
+
+      // Add inspection fields
+      initial_inspection_notes: initialInspectionNotes,
+      initial_inspection_date: initialInspectionDate,
+      final_inspection_notes: finalInspectionNotes,
+      final_inspection_date: finalInspectionDate,
+
+      // Add contract fields
+      contract_notes: contractNotes,
+      contract_generated_url: contractGeneratedUrl,
     }
 
     // Log the rental request for debugging
@@ -103,38 +146,80 @@ export async function submitRentalRequest(formData: FormData) {
       console.log('This is a new record creation')
     }
 
-    // Store ID documents if provided
-    const idDocuments = formData.getAll("idDocuments") as File[]
-    const documentUrls: string[] = []
+    // Helper function to upload files to a specific folder
+    async function uploadFiles(files: File[], folder: string): Promise<string[]> {
+      const urls: string[] = []
 
-    if (idDocuments && idDocuments.length > 0) {
-      for (const document of idDocuments) {
-        // Convert file to array buffer
-        const arrayBuffer = await document.arrayBuffer()
-        const buffer = new Uint8Array(arrayBuffer)
+      if (files && files.length > 0) {
+        for (const file of files) {
+          // Convert file to array buffer
+          const arrayBuffer = await file.arrayBuffer()
+          const buffer = new Uint8Array(arrayBuffer)
 
-        // Upload to Supabase Storage using server client
-        const fileName = `${referenceNumber}/${document.name}`
-        const { error } = await serverSupabase.storage.from("id-documents").upload(fileName, buffer, {
-          contentType: document.type,
-          upsert: false,
-        })
+          // Create a unique filename to avoid collisions
+          const timestamp = new Date().getTime()
+          const fileName = `${referenceNumber}/${folder}/${timestamp}_${file.name}`
 
-        if (error) {
-          console.error("Error uploading document:", error)
-          throw new Error("Failed to upload ID document")
+          // Upload to Supabase Storage using server client
+          const { error } = await serverSupabase.storage.from("rental-files").upload(fileName, buffer, {
+            contentType: file.type,
+            upsert: true, // Allow overwriting files with the same name
+          })
+
+          if (error) {
+            console.error(`Error uploading ${folder} file:`, error)
+            throw new Error(`Failed to upload ${folder} file`)
+          }
+
+          // Get public URL using server client
+          const { data: urlData } = serverSupabase.storage.from("rental-files").getPublicUrl(fileName)
+
+          urls.push(urlData.publicUrl)
         }
-
-        // Get public URL using server client
-        const { data: urlData } = serverSupabase.storage.from("id-documents").getPublicUrl(fileName)
-
-        documentUrls.push(urlData.publicUrl)
       }
+
+      return urls
     }
 
-    // Add document URLs if any were uploaded
+    // Upload ID documents
+    const idDocuments = formData.getAll("documents") as File[]
+    const documentUrls = await uploadFiles(idDocuments, "documents")
+
+    // Upload payment proof files
+    const paymentProofFiles = formData.getAll("paymentProof") as File[]
+    const paymentProofUrls = await uploadFiles(paymentProofFiles, "payment-proof")
+
+    // Upload initial inspection images
+    const initialInspectionImages = formData.getAll("initialInspectionImages") as File[]
+    const initialInspectionImageUrls = await uploadFiles(initialInspectionImages, "initial-inspection")
+
+    // Upload final inspection images
+    const finalInspectionImages = formData.getAll("finalInspectionImages") as File[]
+    const finalInspectionImageUrls = await uploadFiles(finalInspectionImages, "final-inspection")
+
+    // Upload contract documents
+    const contractDocuments = formData.getAll("contractDocuments") as File[]
+    const contractDocumentUrls = await uploadFiles(contractDocuments, "contracts")
+
+    // Add document URLs to the rental request object
     if (documentUrls.length > 0) {
       rentalRequest.document_urls = documentUrls
+    }
+
+    if (paymentProofUrls.length > 0) {
+      rentalRequest.payment_proof_urls = paymentProofUrls
+    }
+
+    if (initialInspectionImageUrls.length > 0) {
+      rentalRequest.initial_inspection_image_urls = initialInspectionImageUrls
+    }
+
+    if (finalInspectionImageUrls.length > 0) {
+      rentalRequest.final_inspection_image_urls = finalInspectionImageUrls
+    }
+
+    if (contractDocumentUrls.length > 0) {
+      rentalRequest.contract_document_urls = contractDocumentUrls
     }
 
     // Log the request for debugging
@@ -193,7 +278,8 @@ export async function submitRentalRequest(formData: FormData) {
 export async function fetchEquipments() {
   try {
     // Create a Supabase client with the server context
-    const serverSupabase = createServerComponentClient({ cookies })
+    const cookieStore = cookies()
+    const serverSupabase = createServerComponentClient({ cookies: () => cookieStore })
 
     // Fetch movie making equipment using server client
     const { data, error } = await serverSupabase.from("equipments").select("*")
@@ -228,7 +314,8 @@ export async function getEquipmentByCategory(category: string) {
 export async function fetchRentalRequests(): Promise<RentalRequest[]> {
   try {
     // Create a Supabase client with the server context
-    const serverSupabase = createServerComponentClient({ cookies })
+    const cookieStore = cookies()
+    const serverSupabase = createServerComponentClient({ cookies: () => cookieStore })
 
     // Get the current user session from the server context
     const { data: { session } } = await serverSupabase.auth.getSession()
