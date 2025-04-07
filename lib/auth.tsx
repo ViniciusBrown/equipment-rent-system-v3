@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser({
             id: userData.user.id,
             email: userData.user.email!,
-            role: userData.user.role!,
+            role: (userData.user.user_metadata?.role as UserRole) || 'client',
             metadata: userData.user.user_metadata as { name?: string }
           })
         }
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser({
             id: session.user.id,
             email: session.user.email!,
-            role: session.user.role!,
+            role: (session.user.user_metadata?.role as UserRole) || 'client',
             metadata: session.user.user_metadata as { name?: string }
           })
         } else {

@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
+import { RoleSelector } from '@/components/profile/RoleSelector'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -143,6 +144,16 @@ export default function ProfilePage() {
             <Button variant="outline" asChild>
               <a href="/forgot-password">Solicitar alteração de senha</a>
             </Button>
+          </div>
+
+          {/* Role Selector for testing */}
+          <div className="border rounded-lg p-6">
+            <h2 className="text-lg font-medium mb-4">Função no Sistema</h2>
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="font-medium">Função atual:</div>
+              <div className="px-2 py-1 bg-primary/10 rounded text-sm font-medium">{user.role}</div>
+            </div>
+            <RoleSelector />
           </div>
         </div>
       </div>

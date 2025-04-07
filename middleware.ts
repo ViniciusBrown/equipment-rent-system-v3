@@ -13,6 +13,9 @@ const routeAccess: Record<string, UserRole[]> = {
   '/financial': ['financial_inspector', 'manager'],
 }
 
+// Debug routes that bypass role checks
+const debugRoutes = ['/debug-admin']
+
 // This middleware is used to refresh the user's session and protect routes
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
@@ -25,6 +28,9 @@ export async function middleware(req: NextRequest) {
 
   // Get the pathname from the URL
   const { pathname } = req.nextUrl
+
+  // Check if this is a debug route that bypasses role checks
+  const isDebugRoute = debugRoutes.some(route => pathname === route || pathname.startsWith(route))
 
   // Check if the route requires authentication
   const authRoutes = Object.keys(routeAccess)
@@ -43,8 +49,10 @@ export async function middleware(req: NextRequest) {
   }
 
   // Check if the user has the required role for the route
-  if (session && isAuthRoute) {
-    const userRole = session.user?.user_metadata?.role as UserRole || 'client'
+  // Skip role checks for debug routes
+  if (session && isAuthRoute && !isDebugRoute) {
+    // Get the role from user metadata
+    const userRole = (session.user?.user_metadata?.role as UserRole) || 'client'
 
     // Find the route that matches the current pathname
     const matchedRoute = Object.entries(routeAccess).find(([route, _]) =>
