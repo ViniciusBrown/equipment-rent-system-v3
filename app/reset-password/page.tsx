@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -33,7 +33,7 @@ const formSchema = z.object({
   path: ['confirmPassword'],
 })
 
-export default function ResetPasswordConfirmPage() {
+function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const router = useRouter()
@@ -183,5 +183,34 @@ export default function ResetPasswordConfirmPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-10">
+        <div className="w-full max-w-md">
+          <Card className="border shadow-lg overflow-hidden">
+            <CardHeader className="space-y-1 text-center bg-primary/5 border-b pb-8">
+              <div className="flex justify-center mb-4">
+                <div className="rounded-full bg-primary/10 p-4 ring-2 ring-primary/20">
+                  <ShieldCheck className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl font-bold">Redefinir senha</CardTitle>
+              <CardDescription>
+                Carregando...
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }
