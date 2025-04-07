@@ -14,13 +14,14 @@ export type AuthUser = {
   role: UserRole
   metadata: {
     name?: string
+    phone?: string
   }
 }
 
 export type AuthContextType = {
   user: AuthUser | null
   loading: boolean
-  signUp: (email: string, password: string, name: string, role?: UserRole) => Promise<{
+  signUp: (email: string, password: string, name: string, phone?: string, role?: UserRole) => Promise<{
     error: Error | null
     data: any | null
   }>
@@ -71,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: userData.user.id,
             email: userData.user.email!,
             role: role,
-            metadata: userData.user.user_metadata as { name?: string }
+            metadata: userData.user.user_metadata as { name?: string, phone?: string }
           })
         }
       }
@@ -105,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: session.user.id,
             email: session.user.email!,
             role: role,
-            metadata: session.user.user_metadata as { name?: string }
+            metadata: session.user.user_metadata as { name?: string, phone?: string }
           })
         } else {
           setUser(null)
@@ -120,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Sign up function
-  const signUp = async (email: string, password: string, name: string, role: UserRole = 'client') => {
+  const signUp = async (email: string, password: string, name: string, phone: string = '', role: UserRole = 'client') => {
     const supabase = createClientComponentClient()
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -128,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         data: {
           name,
+          phone,
           role,
         },
       },

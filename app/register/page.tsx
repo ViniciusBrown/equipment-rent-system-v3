@@ -32,6 +32,9 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Por favor, insira um endereço de e-mail válido.',
   }),
+  phone: z.string().min(10, {
+    message: 'Por favor, insira um número de telefone válido.',
+  }).optional(),
   password: z.string().min(8, {
     message: 'A senha deve ter pelo menos 8 caracteres.',
   }),
@@ -63,6 +66,7 @@ export default function SignUpPage() {
     defaultValues: {
       name: '',
       email: '',
+      phone: '',
       password: '',
       confirmPassword: '',
       role: 'client',
@@ -74,7 +78,7 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      const { error } = await signUp(values.email, values.password, values.name, values.role)
+      const { error } = await signUp(values.email, values.password, values.name, values.phone, values.role)
 
       if (error) {
         toast({
@@ -142,6 +146,19 @@ export default function SignUpPage() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input placeholder="joao@exemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(00) 00000-0000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

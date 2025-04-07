@@ -47,6 +47,53 @@ export function RentOrderDialog({
   const { toast } = useToast()
   const { user } = useAuth()
 
+  // Function to calculate the number of visible tabs based on user role
+  const getVisibleTabsCount = () => {
+    // All users can see Client and Equipment tabs
+    let count = 2
+
+    // Financial tab - only for financial inspectors and managers
+    if (user?.role === 'financial_inspector' || user?.role === 'manager') {
+      count++
+    }
+
+    // Initial inspection tab - only for equipment inspectors, financial inspectors, and managers
+    if (['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')) {
+      count++
+    }
+
+    // Contract tab - only for managers
+    if (user?.role === 'manager') {
+      count++
+    }
+
+    // Final inspection tab - only for equipment inspectors, financial inspectors, and managers
+    if (['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')) {
+      count++
+    }
+
+    return count
+  }
+
+  // Function to determine the default tab based on user role
+  const getDefaultTab = () => {
+    // Default tab for all users is 'client'
+    if (!user) return 'client'
+
+    // For equipment inspectors, default to initial inspection tab
+    if (user.role === 'equipment_inspector') {
+      return 'initial-inspection'
+    }
+
+    // For financial inspectors, default to financial tab
+    if (user.role === 'financial_inspector') {
+      return 'financial'
+    }
+
+    // For managers, default to client tab
+    return 'client'
+  }
+
   // Initialize form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -97,19 +144,35 @@ export function RentOrderDialog({
         })),
       })
     } else if (!initialData && dialogOpen) {
-      form.reset({
-        fullName: '',
-        email: '',
-        phone: '',
-        rentalStart: new Date(),
-        rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
-        specialRequirements: '',
-        estimatedCost: 0,
-        status: 'pending',
-        equipmentItems: [],
-      })
+      // If user is a client, pre-fill their information
+      if (user?.role === 'client') {
+        form.reset({
+          fullName: user.metadata.name || '',
+          email: user.email,
+          phone: user.metadata.phone || '',
+          rentalStart: new Date(),
+          rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
+          specialRequirements: '',
+          estimatedCost: 0,
+          status: 'pending',
+          equipmentItems: [],
+        })
+      } else {
+        // For other roles, use empty values
+        form.reset({
+          fullName: '',
+          email: '',
+          phone: '',
+          rentalStart: new Date(),
+          rentalEnd: new Date(new Date().setDate(new Date().getDate() + 1)),
+          specialRequirements: '',
+          estimatedCost: 0,
+          status: 'pending',
+          equipmentItems: [],
+        })
+      }
     }
-  }, [initialData, dialogOpen, form])
+  }, [initialData, dialogOpen, form, user])
 
   // Sync with external open state if provided
   useEffect(() => {
@@ -267,34 +330,43 @@ export function RentOrderDialog({
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Tabs defaultValue="client" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+              <Tabs defaultValue={getDefaultTab()} className="w-full">
+                <TabsList className="grid w-full"
+                  style={{
+                    gridTemplateColumns: `repeat(${getVisibleTabsCount()}, minmax(0, 1fr))`
+                  }}
+                >
+                  {/* These tabs are visible to all users */}
                   <TabsTrigger value="client">Cliente</TabsTrigger>
                   <TabsTrigger value="equipment">Equipamentos</TabsTrigger>
-                  <TabsTrigger
-                    value="financial"
-                    disabled={user?.role !== 'financial_inspector' && user?.role !== 'manager'}
-                  >
-                    Financeiro
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="initial-inspection"
-                    disabled={!['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')}
-                  >
-                    Inspeção Inicial
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="contract"
-                    disabled={user?.role !== 'manager'}
-                  >
-                    Contratos
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="final-inspection"
-                    disabled={!['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')}
-                  >
-                    Inspeção Final
-                  </TabsTrigger>
+
+                  {/* Financial tab - only for financial inspectors and managers */}
+                  {(user?.role === 'financial_inspector' || user?.role === 'manager') && (
+                    <TabsTrigger value="financial">
+                      Financeiro
+                    </TabsTrigger>
+                  )}
+
+                  {/* Initial inspection tab - only for equipment inspectors, financial inspectors, and managers */}
+                  {['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '') && (
+                    <TabsTrigger value="initial-inspection">
+                      Inspeção Inicial
+                    </TabsTrigger>
+                  )}
+
+                  {/* Contract tab - only for managers */}
+                  {user?.role === 'manager' && (
+                    <TabsTrigger value="contract">
+                      Contratos
+                    </TabsTrigger>
+                  )}
+
+                  {/* Final inspection tab - only for equipment inspectors, financial inspectors, and managers */}
+                  {['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '') && (
+                    <TabsTrigger value="final-inspection">
+                      Inspeção Final
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <div className="h-[500px] overflow-hidden flex-grow">
@@ -312,33 +384,41 @@ export function RentOrderDialog({
                     </div>
                   </TabsContent>
 
-                  {/* Financial Tab */}
-                  <TabsContent value="financial" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
-                    <div className="space-y-4">
-                      <FinancialTab form={form} initialData={initialData} />
-                    </div>
-                  </TabsContent>
+                  {/* Financial Tab - only for financial inspectors and managers */}
+                  {(user?.role === 'financial_inspector' || user?.role === 'manager') && (
+                    <TabsContent value="financial" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                      <div className="space-y-4">
+                        <FinancialTab form={form} initialData={initialData} />
+                      </div>
+                    </TabsContent>
+                  )}
 
-                  {/* Initial Inspection Tab */}
-                  <TabsContent value="initial-inspection" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
-                    <div className="space-y-4">
-                      <InitialInspectionTab form={form} initialData={initialData} />
-                    </div>
-                  </TabsContent>
+                  {/* Initial Inspection Tab - only for equipment inspectors, financial inspectors, and managers */}
+                  {['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '') && (
+                    <TabsContent value="initial-inspection" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                      <div className="space-y-4">
+                        <InitialInspectionTab form={form} initialData={initialData} />
+                      </div>
+                    </TabsContent>
+                  )}
 
-                  {/* Contract Documents Tab */}
-                  <TabsContent value="contract" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
-                    <div className="space-y-4">
-                      <ContractDocumentsTab form={form} initialData={initialData} />
-                    </div>
-                  </TabsContent>
+                  {/* Contract Documents Tab - only for managers */}
+                  {user?.role === 'manager' && (
+                    <TabsContent value="contract" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                      <div className="space-y-4">
+                        <ContractDocumentsTab form={form} initialData={initialData} />
+                      </div>
+                    </TabsContent>
+                  )}
 
-                  {/* Final Inspection Tab */}
-                  <TabsContent value="final-inspection" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
-                    <div className="space-y-4">
-                      <FinalInspectionTab form={form} initialData={initialData} />
-                    </div>
-                  </TabsContent>
+                  {/* Final Inspection Tab - only for equipment inspectors, financial inspectors, and managers */}
+                  {['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '') && (
+                    <TabsContent value="final-inspection" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                      <div className="space-y-4">
+                        <FinalInspectionTab form={form} initialData={initialData} />
+                      </div>
+                    </TabsContent>
+                  )}
                 </div>
               </Tabs>
 

@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { UserRole } from '@/lib/auth'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2 } from 'lucide-react'
+import { Loader2, AlertTriangle } from 'lucide-react'
+import { env } from '@/lib/env'
 
 import {
   Select,
@@ -20,8 +21,14 @@ export function RoleSelector() {
   const { user } = useAuth()
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isEnabled, setIsEnabled] = useState(false)
   const { toast } = useToast()
   const supabase = createClientComponentClient()
+
+  // Check if role selector should be enabled
+  useEffect(() => {
+    setIsEnabled(env.isRoleSelectorEnabled())
+  }, [])
 
   const updateRole = async () => {
     if (!selectedRole || !user) return
@@ -56,6 +63,21 @@ export function RoleSelector() {
   }
 
   if (!user) return null
+
+  // If role selector is disabled in production, show a message
+  if (!isEnabled) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 text-amber-500">
+          <AlertTriangle className="h-5 w-5" />
+          <p className="font-medium">Recurso desativado em produção</p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          A alteração de funções está disponível apenas em ambiente de desenvolvimento ou para administradores do sistema.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
