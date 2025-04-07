@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
@@ -13,54 +13,42 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
+        getAll() {
           try {
-            return request.cookies.get(name)?.value
+            return request.cookies.getAll().map((cookie) => ({
+              name: cookie.name,
+              value: cookie.value,
+            }))
           } catch (error) {
-            console.error('Error getting cookie in middleware:', error)
-            return undefined
+            console.error('Error getting cookies in middleware:', error)
+            return []
           }
         },
-        set(name: string, value: string, options: CookieOptions) {
+        setAll(cookieList) {
           try {
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
-            response.cookies.set({
-              name,
-              value,
-              ...options,
+            cookieList.forEach((cookie) => {
+              request.cookies.set({
+                name: cookie.name,
+                value: cookie.value,
+                ...cookie.options,
+              })
+
+              // Create a new response with updated headers
+              response = NextResponse.next({
+                request: {
+                  headers: request.headers,
+                },
+              })
+
+              // Set the cookie in the response
+              response.cookies.set({
+                name: cookie.name,
+                value: cookie.value,
+                ...cookie.options,
+              })
             })
           } catch (error) {
-            console.error('Error setting cookie in middleware:', error)
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            request.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
-            response.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
-          } catch (error) {
-            console.error('Error removing cookie in middleware:', error)
+            console.error('Error setting cookies in middleware:', error)
           }
         },
       },
