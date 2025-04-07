@@ -35,14 +35,7 @@ export function EquipmentBadge({ item }: EquipmentBadgeProps) {
           <div className="text-sm">
             <p><span className="font-medium">Nome:</span> {item.name}</p>
             <p><span className="font-medium">Quantidade:</span> {item.quantity}</p>
-            {item.daily_rate && (
-              <p>
-                <span className="font-medium">Valor Diário:</span> {new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(item.daily_rate)}
-              </p>
-            )}
+            {/* Cost information removed - only shown in Finance tab */}
           </div>
         </div>
       </HoverCardContent>

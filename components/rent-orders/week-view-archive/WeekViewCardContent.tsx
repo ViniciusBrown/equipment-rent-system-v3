@@ -79,13 +79,8 @@ export function WeekViewCardContent({ order, compact = false }: WeekViewCardCont
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <span className="font-medium">
-              {new Intl.NumberFormat("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }).format(order.amount)}
-            </span>
+          {/* Payment status badge only - cost information removed */}
+          <div className="flex items-center justify-end gap-4">
             <Badge variant="outline" className="bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 border-emerald-400/20">
               Pago
             </Badge>

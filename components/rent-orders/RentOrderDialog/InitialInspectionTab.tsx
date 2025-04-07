@@ -39,10 +39,10 @@ import { Separator } from '@/components/ui/separator'
 export function InitialInspectionTab({ form, initialData }: TabProps) {
   const [dragActive, setDragActive] = useState(false)
   const { user } = useAuth()
-  
+
   // Check if user has permission to edit inspection information
   const canEdit = ['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')
-  
+
   // Handle drag events
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -59,7 +59,7 @@ export function InitialInspectionTab({ form, initialData }: TabProps) {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const currentFiles = form.getValues('initialInspectionImages') || []
       const newFiles = Array.from(e.dataTransfer.files)
@@ -87,7 +87,7 @@ export function InitialInspectionTab({ form, initialData }: TabProps) {
 
   // Get current inspection images
   const inspectionImages = form.watch('initialInspectionImages') || []
-  
+
   // Get equipment items
   const equipmentItems = form.watch('equipmentItems') || []
 
@@ -103,7 +103,7 @@ export function InitialInspectionTab({ form, initialData }: TabProps) {
             </Badge>
           )}
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -189,7 +189,6 @@ export function InitialInspectionTab({ form, initialData }: TabProps) {
                     <Separator className="my-2" />
                     <div className="text-sm text-muted-foreground">
                       <p>ID: {item.id}</p>
-                      <p>Valor Diário: R$ {item.daily_rate.toFixed(2)}</p>
                       {item.stock && <p>Estoque: {item.stock}</p>}
                     </div>
                   </div>
@@ -228,7 +227,7 @@ export function InitialInspectionTab({ form, initialData }: TabProps) {
       {/* Inspection Images Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Fotos da Inspeção</h3>
-        
+
         <FormField
           control={form.control}
           name="initialInspectionImages"
@@ -328,8 +327,8 @@ export function InitialInspectionTab({ form, initialData }: TabProps) {
             disabled={form.watch('initialInspectionStatus') === 'completed'}
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            {form.watch('initialInspectionStatus') === 'completed' 
-              ? 'Inspeção Concluída' 
+            {form.watch('initialInspectionStatus') === 'completed'
+              ? 'Inspeção Concluída'
               : 'Marcar Inspeção como Concluída'}
           </Button>
         </div>

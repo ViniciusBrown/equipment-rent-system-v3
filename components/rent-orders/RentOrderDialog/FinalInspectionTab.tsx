@@ -40,13 +40,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 export function FinalInspectionTab({ form, initialData }: TabProps) {
   const [dragActive, setDragActive] = useState(false)
   const { user } = useAuth()
-  
+
   // Check if user has permission to edit inspection information
   const canEdit = ['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')
-  
+
   // Check if initial inspection is completed
   const initialInspectionCompleted = form.watch('initialInspectionStatus') === 'completed'
-  
+
   // Handle drag events
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -63,7 +63,7 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const currentFiles = form.getValues('finalInspectionImages') || []
       const newFiles = Array.from(e.dataTransfer.files)
@@ -91,7 +91,7 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
 
   // Get current inspection images
   const finalInspectionImages = form.watch('finalInspectionImages') || []
-  
+
   // Get equipment items
   const equipmentItems = form.watch('equipmentItems') || []
 
@@ -107,7 +107,7 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
             Por favor, complete a inspeção inicial antes de prosseguir.
           </AlertDescription>
         </Alert>
-        
+
         <div className="flex justify-center">
           <Button
             type="button"
@@ -145,7 +145,7 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
             </Badge>
           )}
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -225,11 +225,11 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
             <div className="text-sm">
               <p className="font-medium">Data da Inspeção Inicial:</p>
               <p className="text-muted-foreground mb-2">
-                {form.watch('initialInspectionDate') 
+                {form.watch('initialInspectionDate')
                   ? format(form.watch('initialInspectionDate'), "PPP", { locale: ptBR })
                   : 'Não informada'}
               </p>
-              
+
               <p className="font-medium">Observações da Inspeção Inicial:</p>
               <p className="text-muted-foreground border rounded-md p-2 bg-muted/20 max-h-[100px] overflow-y-auto">
                 {form.watch('initialInspectionNotes') || 'Nenhuma observação registrada.'}
@@ -255,7 +255,6 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
                     <Separator className="my-2" />
                     <div className="text-sm text-muted-foreground">
                       <p>ID: {item.id}</p>
-                      <p>Valor Diário: R$ {item.daily_rate.toFixed(2)}</p>
                       {item.stock && <p>Estoque: {item.stock}</p>}
                     </div>
                   </div>
@@ -294,7 +293,7 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
       {/* Inspection Images Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Fotos da Inspeção Final</h3>
-        
+
         <FormField
           control={form.control}
           name="finalInspectionImages"
@@ -398,8 +397,8 @@ export function FinalInspectionTab({ form, initialData }: TabProps) {
             disabled={form.watch('finalInspectionStatus') === 'completed'}
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            {form.watch('finalInspectionStatus') === 'completed' 
-              ? 'Inspeção Concluída' 
+            {form.watch('finalInspectionStatus') === 'completed'
+              ? 'Inspeção Concluída'
               : 'Finalizar Inspeção e Concluir Aluguel'}
           </Button>
         </div>

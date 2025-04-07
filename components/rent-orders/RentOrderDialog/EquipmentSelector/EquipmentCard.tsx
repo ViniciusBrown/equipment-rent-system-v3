@@ -34,9 +34,6 @@ export function EquipmentCard({ equipment, onAdd }: EquipmentCardProps) {
         <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
           {equipment.description || 'Sem descrição disponível'}
         </p>
-        <p className="mt-2 font-medium text-primary">
-          {typeof equipment.daily_rate === 'string' ? equipment.daily_rate : `R$${equipment.daily_rate}/dia`}
-        </p>
       </CardContent>
       <CardFooter className="p-3 pt-0">
         <Button

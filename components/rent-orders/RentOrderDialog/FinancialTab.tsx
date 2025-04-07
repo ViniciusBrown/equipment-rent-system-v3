@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { CalendarIcon, Upload, File, Trash2, Send } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { CalendarIcon, Upload, File, Trash2, Send, Calculator } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -34,15 +34,17 @@ import { TabProps } from './types'
 import { useAuth } from '@/hooks/use-auth'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 
 export function FinancialTab({ form, initialData }: TabProps) {
   const [dragActive, setDragActive] = useState(false)
   const { user } = useAuth()
   const { toast } = useToast()
-  
+
   // Check if user has permission to edit financial information
   const canEdit = user?.role === 'financial_inspector' || user?.role === 'manager'
-  
+
   // Handle drag events
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -59,7 +61,7 @@ export function FinancialTab({ form, initialData }: TabProps) {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const currentFiles = form.getValues('paymentProof') || []
       const newFiles = Array.from(e.dataTransfer.files)
@@ -87,7 +89,44 @@ export function FinancialTab({ form, initialData }: TabProps) {
 
   // Get current payment proof files
   const paymentProofFiles = form.watch('paymentProof') || []
-  
+
+  // Get equipment items
+  const equipmentItems = form.watch('equipmentItems') || []
+
+  // Get rental dates
+  const rentalStart = form.watch('rentalStart')
+  const rentalEnd = form.watch('rentalEnd')
+
+  // Calculate rental duration in days
+  const rentalDuration = useMemo(() => {
+    if (!rentalStart || !rentalEnd) return 1
+    const diffTime = Math.abs(rentalEnd.getTime() - rentalStart.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays || 1 // Ensure at least 1 day
+  }, [rentalStart, rentalEnd])
+
+  // Calculate total cost of all selected equipment items
+  const equipmentCosts = useMemo(() => {
+    return equipmentItems.map(item => ({
+      name: item.name,
+      quantity: item.quantity,
+      dailyRate: item.daily_rate,
+      totalCost: item.daily_rate * item.quantity * rentalDuration
+    }))
+  }, [equipmentItems, rentalDuration])
+
+  // Calculate total cost
+  const totalCost = useMemo(() => {
+    return equipmentCosts.reduce((sum, item) => sum + item.totalCost, 0)
+  }, [equipmentCosts])
+
+  // Update estimated cost when total cost changes
+  useEffect(() => {
+    if (canEdit) {
+      form.setValue('estimatedCost', totalCost)
+    }
+  }, [totalCost, form, canEdit])
+
   // Handle sending notification to client
   const handleSendNotification = () => {
     // This would be implemented with an actual email notification system
@@ -99,17 +138,66 @@ export function FinancialTab({ form, initialData }: TabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Budget Status Section */}
+      {/* Equipment Cost Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Status do Orçamento</h3>
+          <h3 className="text-lg font-medium">Detalhes do Orçamento</h3>
           {!canEdit && (
             <Badge variant="outline" className="text-muted-foreground">
               Visualização apenas
             </Badge>
           )}
         </div>
-        
+
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-primary" />
+                <h4 className="font-medium">Equipamentos Alugados</h4>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Duração do aluguel: <span className="font-medium">{rentalDuration} {rentalDuration === 1 ? 'dia' : 'dias'}</span>
+              </div>
+            </div>
+
+            <Separator />
+
+            {equipmentItems.length === 0 ? (
+              <div className="text-center py-4 text-muted-foreground">
+                Nenhum equipamento selecionado
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {equipmentCosts.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center text-sm">
+                    <div>
+                      <span className="font-medium">{item.name}</span>
+                      <span className="text-muted-foreground"> x {item.quantity}</span>
+                    </div>
+                    <div className="space-x-4 flex items-center">
+                      <span className="text-muted-foreground">R$ {item.dailyRate.toFixed(2)}/dia</span>
+                      <span className="font-medium">R$ {item.totalCost.toFixed(2)}</span>
+                    </div>
+                  </div>
+                ))}
+
+                <Separator />
+
+                <div className="flex justify-between items-center font-medium">
+                  <span>Total dos Equipamentos:</span>
+                  <span className="text-lg">R$ {totalCost.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Budget Status Section */}
+        <div className="flex items-center justify-between mt-6">
+          <h3 className="text-lg font-medium">Status do Orçamento</h3>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -159,7 +247,7 @@ export function FinancialTab({ form, initialData }: TabProps) {
             )}
           />
         </div>
-        
+
         <div className="flex justify-end">
           <Button
             type="button"
@@ -177,7 +265,7 @@ export function FinancialTab({ form, initialData }: TabProps) {
       {/* Payment Status Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Status de Pagamento</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -289,7 +377,7 @@ export function FinancialTab({ form, initialData }: TabProps) {
       {/* Payment Proof Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Comprovante de Pagamento</h3>
-        
+
         <FormField
           control={form.control}
           name="paymentProof"
