@@ -74,8 +74,6 @@ export async function submitRentalRequest(formData: FormData) {
     const { data: { session } } = await serverSupabase.auth.getSession()
     const userId = session?.user?.id
 
-    console.log('Submit rental request - user ID:', userId)
-
     // Create the rental request object
     const rentalRequest: any = {
       full_name: fullName,
