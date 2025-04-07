@@ -1,7 +1,8 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { UserRole } from './lib/auth'
+import { updateSession } from './utils/supabase/middleware'
+import { createServerClient } from '@supabase/ssr'
 
 // Define role-based route access
 const routeAccess: Record<string, UserRole[]> = {
@@ -18,13 +19,8 @@ const debugRoutes = ['/debug-admin']
 
 // This middleware is used to refresh the user's session and protect routes
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-
-  // Create a Supabase client configured to use cookies
-  const supabase = createMiddlewareClient({ req, res })
-
-  // Refresh session if expired
-  await supabase.auth.getSession()
+  // Update the session using our utility function
+  const res = await updateSession(req)
 
   // Get the pathname from the URL
   const { pathname } = req.nextUrl
@@ -36,13 +32,33 @@ export async function middleware(req: NextRequest) {
   const authRoutes = Object.keys(routeAccess)
   const isAuthRoute = authRoutes.some(route => pathname === route || (route !== '/' && pathname.startsWith(route)))
 
-  // Check if the user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  // Create a Supabase client to check the session
+  const cookieStore = req.cookies
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          // This is used for server-side setting only
+          // We already handle setting cookies in the middleware
+        },
+        remove(name: string, options: any) {
+          // This is used for server-side setting only
+          // We already handle setting cookies in the middleware
+        },
+      },
+    }
+  )
+
+  // Get the user (more secure than getSession)
+  const { data: { user } } = await supabase.auth.getUser()
 
   // If the route requires authentication and the user is not authenticated, redirect to login
-  if (isAuthRoute && !session) {
+  if (isAuthRoute && !user) {
     const redirectUrl = new URL('/login', req.url)
     redirectUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(redirectUrl)
@@ -50,9 +66,9 @@ export async function middleware(req: NextRequest) {
 
   // Check if the user has the required role for the route
   // Skip role checks for debug routes
-  if (session && isAuthRoute && !isDebugRoute) {
+  if (user && isAuthRoute && !isDebugRoute) {
     // Get the role from user metadata
-    const userRole = (session.user?.user_metadata?.role as UserRole) || 'client'
+    const userRole = (user.user_metadata?.role as UserRole) || 'client'
 
     // Find the route that matches the current pathname
     const matchedRoute = Object.entries(routeAccess).find(([route, _]) =>
@@ -70,7 +86,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // If the user is authenticated and trying to access login or signup, redirect to home
-  if (session && (pathname === '/login' || pathname === '/register')) {
+  if (user && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 

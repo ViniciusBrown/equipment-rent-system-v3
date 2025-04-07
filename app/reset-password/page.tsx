@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 // Form schema with validation
@@ -54,7 +54,7 @@ export default function ResetPasswordConfirmPage() {
     setIsLoading(true)
 
     try {
-      const supabase = createClientComponentClient()
+      const supabase = createClient()
       const { error } = await supabase.auth.updateUser({
         password: values.password,
       })
@@ -93,7 +93,7 @@ export default function ResetPasswordConfirmPage() {
   useEffect(() => {
     const checkResetToken = async () => {
       // The token is automatically handled by Supabase when the page loads
-      const supabase = createClientComponentClient()
+      const supabase = createClient()
       const { data, error } = await supabase.auth.getSession()
 
       if (error || !data.session) {

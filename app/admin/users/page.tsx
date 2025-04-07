@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { UserRole } from '@/lib/auth'
 
@@ -47,7 +47,7 @@ export default function UsersAdminPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   // Check if the current user is a manager
   useEffect(() => {

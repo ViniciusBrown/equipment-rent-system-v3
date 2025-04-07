@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 
 import { useAuth } from '@/hooks/use-auth'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { RentalRequest } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,7 +22,7 @@ export default function MyOrdersPage() {
       if (!user) return
 
       try {
-        const supabase = createClientComponentClient()
+        const supabase = createClient()
         const { data, error } = await supabase
           .from('rental_requests')
           .select('*')

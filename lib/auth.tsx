@@ -1,6 +1,6 @@
 'use client'
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 // We'll create a new supabase client when needed
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check for session on initial load
   useEffect(() => {
     const getSession = async () => {
-      const supabase = createClientComponentClient()
+      const supabase = createClient()
       const { data, error } = await supabase.auth.getSession()
 
       if (!error && data.session) {
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getSession()
 
     // Set up auth state listener
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (session?.user) {
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign up function
   const signUp = async (email: string, password: string, name: string, phone: string = '', role: UserRole = 'client') => {
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign in function
   const signIn = async (email: string, password: string) => {
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -149,14 +149,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sign out function
   const signOut = async () => {
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     await supabase.auth.signOut()
     setUser(null)
   }
 
   // Reset password function
   const resetPassword = async (email: string) => {
-    const supabase = createClientComponentClient()
+    const supabase = createClient()
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })

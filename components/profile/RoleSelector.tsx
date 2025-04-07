@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { UserRole } from '@/lib/auth'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2, AlertTriangle } from 'lucide-react'
 import { env } from '@/lib/env'
@@ -23,7 +23,7 @@ export function RoleSelector() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false)
   const { toast } = useToast()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   // Check if role selector should be enabled
   useEffect(() => {

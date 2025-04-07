@@ -1,8 +1,7 @@
 'use server'
 
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/utils/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,8 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Supabase client
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    const supabase = await createClient()
 
     // Check if the current user is a manager
     const { data: { session } } = await supabase.auth.getSession()

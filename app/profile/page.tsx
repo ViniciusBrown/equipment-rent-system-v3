@@ -20,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/use-auth'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 
 // Form schema with validation
 const formSchema = z.object({
@@ -61,7 +61,7 @@ export default function ProfilePage() {
     setIsLoading(true)
 
     try {
-      const supabase = createClientComponentClient()
+      const supabase = createClient()
       const { error } = await supabase.auth.updateUser({
         data: {
           name: values.name,

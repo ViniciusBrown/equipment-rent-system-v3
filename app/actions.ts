@@ -1,8 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { cookies } from "next/headers"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@/utils/supabase/server"
 import { supabase, type RentalRequest } from "@/lib/supabase"
 
 export async function submitRentalRequest(formData: FormData) {
@@ -68,12 +67,11 @@ export async function submitRentalRequest(formData: FormData) {
     })
 
     // Create a Supabase client with the server context
-    const cookieStore = cookies()
-    const serverSupabase = createServerComponentClient({ cookies: () => cookieStore })
+    const serverSupabase = await createClient()
 
-    // Get the current user session from the server context
-    const { data: { session } } = await serverSupabase.auth.getSession()
-    const userId = session?.user?.id
+    // Get the current user from the server context (more secure than getSession)
+    const { data: { user } } = await serverSupabase.auth.getUser()
+    const userId = user?.id
 
     // Extract workflow status fields
     const paymentStatus = formData.get("paymentStatus") as "pending" | "completed" || "pending"
@@ -278,8 +276,7 @@ export async function submitRentalRequest(formData: FormData) {
 export async function fetchEquipments() {
   try {
     // Create a Supabase client with the server context
-    const cookieStore = cookies()
-    const serverSupabase = createServerComponentClient({ cookies: () => cookieStore })
+    const serverSupabase = await createClient()
 
     // Fetch movie making equipment using server client
     const { data, error } = await serverSupabase.from("equipments").select("*")
@@ -314,19 +311,18 @@ export async function getEquipmentByCategory(category: string) {
 export async function fetchRentalRequests(): Promise<RentalRequest[]> {
   try {
     // Create a Supabase client with the server context
-    const cookieStore = cookies()
-    const serverSupabase = createServerComponentClient({ cookies: () => cookieStore })
+    const serverSupabase = await createClient()
 
-    // Get the current user session from the server context
-    const { data: { session } } = await serverSupabase.auth.getSession()
+    // Get the current user from the server context (more secure than getSession)
+    const { data: { user } } = await serverSupabase.auth.getUser()
 
-    // Log session information for debugging
-    console.log('Server session user:', session?.user ? {
-      id: session.user.id,
-      email: session.user.email,
-      role: session.user.user_metadata?.role,
-      metadata: session.user.user_metadata
-    } : 'No session')
+    // Log user information for debugging
+    console.log('Server user:', user ? {
+      id: user.id,
+      email: user.email,
+      role: user.user_metadata?.role,
+      metadata: user.user_metadata
+    } : 'No user')
 
     // Default query - use the server supabase client
     let query = serverSupabase
@@ -334,18 +330,18 @@ export async function fetchRentalRequests(): Promise<RentalRequest[]> {
       .select("*")
 
     // If user is logged in, check their role
-    if (session?.user) {
+    if (user) {
       // Get role from user metadata - log all possible locations
-      console.log('User metadata:', session.user.user_metadata)
-      console.log('App metadata:', session.user.app_metadata)
+      console.log('User metadata:', user.user_metadata)
+      console.log('App metadata:', user.app_metadata)
 
       // Try different ways to get the role
-      const metadataRole = session.user.user_metadata?.role
-      const appMetadataRole = session.user.app_metadata?.role
+      const metadataRole = user.user_metadata?.role
+      const appMetadataRole = user.app_metadata?.role
 
       // Use the first available role or default to client
       const userRole = metadataRole || appMetadataRole || 'client'
-      const userId = session.user.id
+      const userId = user.id
 
       console.log('Determined user role:', userRole)
 
@@ -356,7 +352,7 @@ export async function fetchRentalRequests(): Promise<RentalRequest[]> {
         if (userId) {
           query = query.eq('user_id', userId)
         } else {
-          query = query.eq('email', session.user.email)
+          query = query.eq('email', user.email)
         }
       } else {
         console.log('Not filtering - showing all requests for role:', userRole)
