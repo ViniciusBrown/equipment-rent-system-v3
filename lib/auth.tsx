@@ -6,19 +6,22 @@ import { createContext, useContext, useEffect, useState } from 'react'
 // We'll create a new supabase client when needed
 
 // Types
+export type UserRole = 'client' | 'equipment_inspector' | 'financial_inspector' | 'manager';
+
 export type AuthUser = {
   id: string
   email: string
-  role: string
+  role: UserRole
   metadata: {
     name?: string
+    phone?: string
   }
 }
 
 export type AuthContextType = {
   user: AuthUser | null
   loading: boolean
-  signUp: (email: string, password: string, name: string) => Promise<{
+  signUp: (email: string, password: string, name: string, phone?: string, role?: UserRole) => Promise<{
     error: Error | null
     data: any | null
   }>
@@ -50,11 +53,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!error && data.session) {
         const { data: userData } = await supabase.auth.getUser()
         if (userData.user) {
+          // Log user data for debugging
+          console.log('Auth user data:', {
+            id: userData.user.id,
+            email: userData.user.email,
+            user_metadata: userData.user.user_metadata,
+            app_metadata: userData.user.app_metadata
+          })
+
+          // Try to get role from different places
+          const metadataRole = userData.user.user_metadata?.role
+          const appMetadataRole = userData.user.app_metadata?.role
+          const role = (metadataRole || appMetadataRole || 'client') as UserRole
+
+          console.log('Determined role:', role)
+
           setUser({
             id: userData.user.id,
             email: userData.user.email!,
-            role: userData.user.role!,
-            metadata: userData.user.user_metadata as { name?: string }
+            role: role,
+            metadata: userData.user.user_metadata as { name?: string, phone?: string }
           })
         }
       }
@@ -67,13 +85,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener
     const supabase = createClientComponentClient()
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         if (session?.user) {
+          // Log session user data for debugging
+          console.log('Auth state change - user data:', {
+            id: session.user.id,
+            email: session.user.email,
+            user_metadata: session.user.user_metadata,
+            app_metadata: session.user.app_metadata
+          })
+
+          // Try to get role from different places
+          const metadataRole = session.user.user_metadata?.role
+          const appMetadataRole = session.user.app_metadata?.role
+          const role = (metadataRole || appMetadataRole || 'client') as UserRole
+
+          console.log('Auth state change - determined role:', role)
+
           setUser({
             id: session.user.id,
             email: session.user.email!,
-            role: session.user.role!,
-            metadata: session.user.user_metadata as { name?: string }
+            role: role,
+            metadata: session.user.user_metadata as { name?: string, phone?: string }
           })
         } else {
           setUser(null)
@@ -88,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Sign up function
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string, phone: string = '', role: UserRole = 'client') => {
     const supabase = createClientComponentClient()
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -96,6 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         data: {
           name,
+          phone,
+          role,
         },
       },
     })

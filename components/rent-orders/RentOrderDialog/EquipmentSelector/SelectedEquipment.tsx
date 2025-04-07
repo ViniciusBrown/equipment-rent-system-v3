@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { EquipmentItem, Equipment } from '../types'
-import { useMemo } from 'react'
 
 interface SelectedEquipmentProps {
   items: EquipmentItem[]
@@ -23,12 +22,7 @@ export function SelectedEquipment({ items, onRemove, onUpdateQuantity, equipment
     )
   }
 
-  // Calculate total cost of all selected equipment items
-  const totalCost = useMemo(() => {
-    return items.reduce((sum, item) => {
-      return sum + (item.daily_rate * item.quantity);
-    }, 0);
-  }, [items]);
+  // We no longer calculate total cost here as it's moved to the Financial tab
 
   return (
     <div className="space-y-2">
@@ -37,9 +31,6 @@ export function SelectedEquipment({ items, onRemove, onUpdateQuantity, equipment
           <div className="flex-1">
             <p className="font-medium">{item.name}</p>
             <div className="flex flex-wrap gap-1 mt-1">
-              <p className="text-sm text-muted-foreground">
-                {typeof item.daily_rate === 'string' ? item.daily_rate : `R$${item.daily_rate}/dia`}
-              </p>
               {item.stock && (
                 <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                   Estoque: {item.stock}
@@ -71,11 +62,7 @@ export function SelectedEquipment({ items, onRemove, onUpdateQuantity, equipment
         </div>
       ))}
 
-      {/* Total Cost Display */}
-      <div className="mt-4 pt-3 border-t flex justify-between items-center">
-        <span className="font-medium">Custo Total dos Equipamentos:</span>
-        <span className="font-bold text-lg">R${totalCost.toFixed(2)}</span>
-      </div>
+      {/* Total cost display moved to Financial tab */}
     </div>
   )
 }

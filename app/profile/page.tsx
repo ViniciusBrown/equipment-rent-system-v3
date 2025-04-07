@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
+import { RoleSelector } from '@/components/profile/RoleSelector'
+import { env } from '@/lib/env'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -28,12 +30,21 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Por favor, insira um endereço de e-mail válido.',
   }).optional(),
+  phone: z.string().min(10, {
+    message: 'Por favor, insira um número de telefone válido.',
+  }).optional(),
 })
 
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [showRoleSelector, setShowRoleSelector] = useState(false)
   const { toast } = useToast()
   const { user } = useAuth()
+
+  // Check if role selector should be shown
+  useEffect(() => {
+    setShowRoleSelector(env.isRoleSelectorEnabled())
+  }, [])
 
   // Initialize form with react-hook-form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,6 +52,7 @@ export default function ProfilePage() {
     defaultValues: {
       name: user?.metadata?.name || '',
       email: user?.email || '',
+      phone: user?.metadata?.phone || '',
     },
   })
 
@@ -53,6 +65,7 @@ export default function ProfilePage() {
       const { error } = await supabase.auth.updateUser({
         data: {
           name: values.name,
+          phone: values.phone,
         },
       })
 
@@ -130,6 +143,19 @@ export default function ProfilePage() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(00) 00000-0000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Button type="submit" className="font-semibold" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Salvar Alterações
@@ -144,6 +170,18 @@ export default function ProfilePage() {
               <a href="/forgot-password">Solicitar alteração de senha</a>
             </Button>
           </div>
+
+          {/* Role Selector for testing - only shown in development or when explicitly enabled */}
+          {showRoleSelector && (
+            <div className="border rounded-lg p-6">
+              <h2 className="text-lg font-medium mb-4">Função no Sistema</h2>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="font-medium">Função atual:</div>
+                <div className="px-2 py-1 bg-primary/10 rounded text-sm font-medium">{user.role}</div>
+              </div>
+              <RoleSelector />
+            </div>
+          )}
         </div>
       </div>
     </div>

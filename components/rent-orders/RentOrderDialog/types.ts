@@ -1,10 +1,12 @@
 'use client'
 
 import * as z from 'zod'
+import { UseFormReturn } from 'react-hook-form'
 import type { RentOrder } from '../types'
 
 // Define the form schema with Zod
 export const formSchema = z.object({
+  // Basic information fields
   id: z.number().optional(),
   fullName: z.string().min(2, { message: 'Nome completo é obrigatório' }),
   email: z.string().email({ message: 'Endereço de email inválido' }),
@@ -15,6 +17,8 @@ export const formSchema = z.object({
   estimatedCost: z.number().min(0),
   status: z.enum(['pending', 'approved', 'rejected', 'completed']),
   referenceNumber: z.string().optional(),
+
+  // Equipment items
   equipmentItems: z.array(
     z.object({
       id: z.string(),
@@ -24,7 +28,36 @@ export const formSchema = z.object({
       stock: z.string().optional(),
     })
   ).default([]),  // Default to empty array and no minimum requirement
+
+  // Client documents
   documents: z.array(z.instanceof(File)).optional(),
+
+  // Workflow status fields
+  paymentStatus: z.enum(['pending', 'completed']).default('pending'),
+  contractStatus: z.enum(['pending', 'generated', 'signed']).default('pending'),
+  initialInspectionStatus: z.enum(['pending', 'completed']).default('pending'),
+  finalInspectionStatus: z.enum(['pending', 'completed']).default('pending'),
+
+  // Financial tab fields
+  paymentProof: z.array(z.instanceof(File)).optional(),
+  paymentDate: z.date().optional(),
+  paymentAmount: z.number().optional(),
+  paymentNotes: z.string().optional(),
+
+  // Initial inspection fields
+  initialInspectionNotes: z.string().optional(),
+  initialInspectionImages: z.array(z.instanceof(File)).optional(),
+  initialInspectionDate: z.date().optional(),
+
+  // Contract and documents fields
+  contractDocuments: z.array(z.instanceof(File)).optional(),
+  contractGeneratedUrl: z.string().optional(),
+  contractNotes: z.string().optional(),
+
+  // Final inspection fields
+  finalInspectionNotes: z.string().optional(),
+  finalInspectionImages: z.array(z.instanceof(File)).optional(),
+  finalInspectionDate: z.date().optional(),
 })
 
 export type FormValues = z.infer<typeof formSchema>
@@ -63,6 +96,6 @@ export interface EquipmentSelectorProps {
 }
 
 export interface TabProps {
-  form: any // Using any for simplicity, but ideally should use proper type
+  form: UseFormReturn<FormValues>
   initialData?: RentOrder | null
 }

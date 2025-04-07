@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogIn, LogOut, UserPlus, User } from 'lucide-react'
+import { LogIn, LogOut, UserPlus, User, Shield } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -57,12 +57,36 @@ export function AuthNav() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="flex items-center gap-2">
-          <User className="h-4 w-4" />
-          <span className="hidden md:inline">{user.metadata.name || user.email}</span>
+          {user.role !== 'client' ? (
+            <Shield className="h-4 w-4 text-primary" />
+          ) : (
+            <User className="h-4 w-4" />
+          )}
+          <span className="hidden md:inline">
+            {user.metadata.name || user.email}
+            {user.role !== 'client' && (
+              <span className="ml-1 text-muted-foreground">
+                ({user.role === 'manager' ? 'Gerente' :
+                  user.role === 'equipment_inspector' ? 'Inspetor de Equipamentos' :
+                  user.role === 'financial_inspector' ? 'Inspetor Financeiro' :
+                  user.role})
+              </span>
+            )}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          Minha Conta
+          {user.role !== 'client' && (
+            <span className="block text-xs font-normal text-muted-foreground mt-1">
+              {user.role === 'manager' ? 'Gerente' :
+               user.role === 'equipment_inspector' ? 'Inspetor de Equipamentos' :
+               user.role === 'financial_inspector' ? 'Inspetor Financeiro' :
+               user.role}
+            </span>
+          )}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/profile">Perfil</Link>
@@ -70,6 +94,36 @@ export function AuthNav() {
         <DropdownMenuItem asChild>
           <Link href="/my-orders">Meus Pedidos</Link>
         </DropdownMenuItem>
+        {/* Role-specific menu items */}
+        {user.role !== 'client' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Área Administrativa
+            </DropdownMenuLabel>
+
+            {/* Manager-specific items */}
+            {user.role === 'manager' && (
+              <DropdownMenuItem asChild>
+                <Link href="/admin/users">Gerenciar Usuários</Link>
+              </DropdownMenuItem>
+            )}
+
+            {/* Equipment inspector items */}
+            {(user.role === 'equipment_inspector' || user.role === 'manager') && (
+              <DropdownMenuItem asChild>
+                <Link href="/inspections">Inspeções de Equipamentos</Link>
+              </DropdownMenuItem>
+            )}
+
+            {/* Financial inspector items */}
+            {(user.role === 'financial_inspector' || user.role === 'manager') && (
+              <DropdownMenuItem asChild>
+                <Link href="/financial">Gestão Financeira</Link>
+              </DropdownMenuItem>
+            )}
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />

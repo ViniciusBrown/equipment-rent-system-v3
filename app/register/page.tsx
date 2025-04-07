@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,6 +21,8 @@ import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/use-auth'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { UserRole } from '@/lib/auth'
 
 // Form schema with validation
 const formSchema = z.object({
@@ -30,10 +32,14 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Por favor, insira um endereço de e-mail válido.',
   }),
+  phone: z.string().min(10, {
+    message: 'Por favor, insira um número de telefone válido.',
+  }).optional(),
   password: z.string().min(8, {
     message: 'A senha deve ter pelo menos 8 caracteres.',
   }),
   confirmPassword: z.string(),
+  role: z.enum(['client', 'equipment_inspector', 'financial_inspector', 'manager']).default('client'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'As senhas não coincidem.',
   path: ['confirmPassword'],
@@ -45,14 +51,25 @@ export default function SignUpPage() {
   const { toast } = useToast()
   const { signUp } = useAuth()
 
+  // State to track if admin mode is enabled
+  const [isAdminMode, setIsAdminMode] = useState(false)
+
+  // Check for admin mode in URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setIsAdminMode(params.get('admin') === 'true')
+  }, [])
+
   // Initialize form with react-hook-form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       email: '',
+      phone: '',
       password: '',
       confirmPassword: '',
+      role: 'client',
     },
   })
 
@@ -61,7 +78,7 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      const { error } = await signUp(values.email, values.password, values.name)
+      const { error } = await signUp(values.email, values.password, values.name, values.phone, values.role)
 
       if (error) {
         toast({
@@ -136,6 +153,19 @@ export default function SignUpPage() {
                 />
                 <FormField
                   control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(00) 00000-0000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -160,6 +190,31 @@ export default function SignUpPage() {
                     </FormItem>
                   )}
                 />
+                {isAdminMode && (
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Função</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione uma função" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="client">Cliente</SelectItem>
+                            <SelectItem value="equipment_inspector">Inspetor de Equipamentos</SelectItem>
+                            <SelectItem value="financial_inspector">Inspetor Financeiro</SelectItem>
+                            <SelectItem value="manager">Gerente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <Button type="submit" className="w-full font-semibold" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Cadastrar
