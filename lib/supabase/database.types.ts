@@ -23,7 +23,7 @@ export type RentalRequest = {
   contract_status?: "pending" | "generated" | "signed"
   initial_inspection_status?: "pending" | "completed"
   final_inspection_status?: "pending" | "completed"
-  user_id?: string
+  user_id?: string | null
 }
 
 export type RentOrder = {

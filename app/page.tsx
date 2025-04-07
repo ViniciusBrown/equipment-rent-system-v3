@@ -9,6 +9,9 @@ export default async function HomePage() { // Make page async
   // Fetch data on the server
   const rentalRequests = await fetchRentalRequests()
 
+  // Log for debugging
+  console.log(`HomePage received ${rentalRequests?.length || 0} rental requests`)
+
   // Map DB data to the format needed by the Kanban UI
   const rentOrders: RentOrder[] = rentalRequests.map((req) => ({
     // Convert id to string to match RentOrder type

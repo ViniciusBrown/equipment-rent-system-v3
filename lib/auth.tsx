@@ -52,10 +52,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!error && data.session) {
         const { data: userData } = await supabase.auth.getUser()
         if (userData.user) {
+          // Log user data for debugging
+          console.log('Auth user data:', {
+            id: userData.user.id,
+            email: userData.user.email,
+            user_metadata: userData.user.user_metadata,
+            app_metadata: userData.user.app_metadata
+          })
+
+          // Try to get role from different places
+          const metadataRole = userData.user.user_metadata?.role
+          const appMetadataRole = userData.user.app_metadata?.role
+          const role = (metadataRole || appMetadataRole || 'client') as UserRole
+
+          console.log('Determined role:', role)
+
           setUser({
             id: userData.user.id,
             email: userData.user.email!,
-            role: (userData.user.user_metadata?.role as UserRole) || 'client',
+            role: role,
             metadata: userData.user.user_metadata as { name?: string }
           })
         }
@@ -69,12 +84,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener
     const supabase = createClientComponentClient()
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         if (session?.user) {
+          // Log session user data for debugging
+          console.log('Auth state change - user data:', {
+            id: session.user.id,
+            email: session.user.email,
+            user_metadata: session.user.user_metadata,
+            app_metadata: session.user.app_metadata
+          })
+
+          // Try to get role from different places
+          const metadataRole = session.user.user_metadata?.role
+          const appMetadataRole = session.user.app_metadata?.role
+          const role = (metadataRole || appMetadataRole || 'client') as UserRole
+
+          console.log('Auth state change - determined role:', role)
+
           setUser({
             id: session.user.id,
             email: session.user.email!,
-            role: (session.user.user_metadata?.role as UserRole) || 'client',
+            role: role,
             metadata: session.user.user_metadata as { name?: string }
           })
         } else {

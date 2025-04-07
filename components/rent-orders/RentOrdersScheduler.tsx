@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, CalendarX } from "lucide-react"
 import type { RentOrder } from "./types"
 import {
   ViewMode,
@@ -15,6 +15,7 @@ import { StretchedRentOrderCard } from "./StretchedRentOrderCard"
 import { CalendarScheduler } from "./CalendarScheduler"
 import { RentOrderDialog } from "./RentOrderDialog"
 import { MultiSelect, ComboboxOption } from "@/components/ui/combobox"
+import { useAuth } from "@/hooks/use-auth"
 
 // Note: To restore Week view in the future, uncomment these imports:
 // import { cn } from "@/lib/utils"
@@ -28,6 +29,14 @@ interface RentOrdersSchedulerProps {
 }
 
 export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrdersSchedulerProps) {
+  // Log initial rent orders for debugging
+  console.log(`RentOrdersScheduler received ${initialRentOrders?.length || 0} rent orders`)
+  if (initialRentOrders?.length > 0) {
+    console.log('First rent order:', initialRentOrders[0])
+  } else {
+    console.log('No rent orders received')
+  }
+
   const today = new Date(serverDate)
   today.setHours(0, 0, 0, 0)
 
@@ -42,6 +51,10 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const { user } = useAuth()
+
+  // Log user role for debugging
+  console.log('Current user role:', user?.role)
 
   // Add event listener for clearing selection
   useEffect(() => {
@@ -144,12 +157,19 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
 
   // Filter orders by selected statuses
   const filteredOrders = useMemo(() => {
+    console.log('Filtering orders with statuses:', selectedStatuses.length ? selectedStatuses : 'No status filters')
+
+    let result;
     if (selectedStatuses.length === 0) {
-      return initialRentOrders;
+      result = initialRentOrders;
+    } else {
+      result = initialRentOrders.filter(order =>
+        selectedStatuses.includes(order.status)
+      );
     }
-    return initialRentOrders.filter(order =>
-      selectedStatuses.includes(order.status)
-    );
+
+    console.log(`After filtering: ${result.length} orders remaining`)
+    return result;
   }, [initialRentOrders, selectedStatuses]);
 
   const columns = getColumns()
@@ -232,6 +252,31 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
     )
   }
 
+  // Empty state component for when a client has no rent orders
+  const EmptyState = () => {
+    // For debugging
+    console.log('Rendering EmptyState with user role:', user?.role)
+
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4 border rounded-lg bg-muted/20">
+        <CalendarX className="h-12 w-12 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-medium mb-2">Nenhum pedido de aluguel encontrado</h3>
+        <p className="text-muted-foreground text-center max-w-md mb-6">
+          {user?.role === 'client'
+            ? 'Você ainda não possui pedidos de aluguel. Crie um novo pedido para começar.'
+            : 'Não há pedidos de aluguel para exibir com os filtros atuais.'}
+        </p>
+        <RentOrderDialog
+          trigger={
+            <Button>
+              Novo Pedido +
+            </Button>
+          }
+        />
+      </div>
+    )
+  }
+
   return (
     <>
       <div
@@ -302,16 +347,20 @@ export function RentOrdersScheduler({ initialRentOrders, serverDate }: RentOrder
           </div>
         </div>
 
-        <CalendarScheduler
-          columns={columns}
-          viewMode={viewMode}
-          today={today}
-          currentDate={currentDate}
-          renderCard={renderCard}
-          selectedOrderId={selectedOrderId}
-          weeklySlots={weeklySlots}
-          weekGroups={weekGroups}
-        />
+        {filteredOrders.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <CalendarScheduler
+            columns={columns}
+            viewMode={viewMode}
+            today={today}
+            currentDate={currentDate}
+            renderCard={renderCard}
+            selectedOrderId={selectedOrderId}
+            weeklySlots={weeklySlots}
+            weekGroups={weekGroups}
+          />
+        )}
       </div>
     </>
   )
