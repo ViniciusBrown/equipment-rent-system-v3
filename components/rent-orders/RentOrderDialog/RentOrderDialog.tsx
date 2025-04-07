@@ -27,9 +27,13 @@ import {
 import { submitRentalRequest } from '@/app/actions'
 import { formSchema, FormValues, RentOrderDialogProps } from './types'
 import { calculateEstimatedCost } from './utils'
-import { CustomerInfoTab } from './CustomerInfoTab'
+import { ClientInfoTab } from './ClientInfoTab'
 import { EquipmentTab } from './EquipmentTab'
-import { DocumentsTab } from './DocumentsTab'
+import { FinancialTab } from './FinancialTab'
+import { InitialInspectionTab } from './InitialInspectionTab'
+import { ContractDocumentsTab } from './ContractDocumentsTab'
+import { FinalInspectionTab } from './FinalInspectionTab'
+import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 
 export function RentOrderDialog({
@@ -41,6 +45,7 @@ export function RentOrderDialog({
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+  const { user } = useAuth()
 
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -262,18 +267,41 @@ export function RentOrderDialog({
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Tabs defaultValue="customer" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="customer">Informações do Cliente</TabsTrigger>
-                  <TabsTrigger value="equipment">Seleção de Equipamentos</TabsTrigger>
-                  <TabsTrigger value="documents">Documentos</TabsTrigger>
+              <Tabs defaultValue="client" className="w-full">
+                <TabsList className="grid w-full grid-cols-6">
+                  <TabsTrigger value="client">Cliente</TabsTrigger>
+                  <TabsTrigger value="equipment">Equipamentos</TabsTrigger>
+                  <TabsTrigger
+                    value="financial"
+                    disabled={user?.role !== 'financial_inspector' && user?.role !== 'manager'}
+                  >
+                    Financeiro
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="initial-inspection"
+                    disabled={!['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')}
+                  >
+                    Inspeção Inicial
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="contract"
+                    disabled={user?.role !== 'manager'}
+                  >
+                    Contratos
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="final-inspection"
+                    disabled={!['equipment_inspector', 'financial_inspector', 'manager'].includes(user?.role || '')}
+                  >
+                    Inspeção Final
+                  </TabsTrigger>
                 </TabsList>
 
                 <div className="h-[500px] overflow-hidden flex-grow">
-                  {/* Customer Info Tab */}
-                  <TabsContent value="customer" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                  {/* Client Info Tab */}
+                  <TabsContent value="client" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
                     <div className="space-y-4">
-                      <CustomerInfoTab form={form} />
+                      <ClientInfoTab form={form} initialData={initialData} />
                     </div>
                   </TabsContent>
 
@@ -284,10 +312,31 @@ export function RentOrderDialog({
                     </div>
                   </TabsContent>
 
-                  {/* Documents Tab */}
-                  <TabsContent value="documents" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                  {/* Financial Tab */}
+                  <TabsContent value="financial" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
                     <div className="space-y-4">
-                      <DocumentsTab form={form} initialData={initialData} />
+                      <FinancialTab form={form} initialData={initialData} />
+                    </div>
+                  </TabsContent>
+
+                  {/* Initial Inspection Tab */}
+                  <TabsContent value="initial-inspection" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                    <div className="space-y-4">
+                      <InitialInspectionTab form={form} initialData={initialData} />
+                    </div>
+                  </TabsContent>
+
+                  {/* Contract Documents Tab */}
+                  <TabsContent value="contract" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                    <div className="space-y-4">
+                      <ContractDocumentsTab form={form} initialData={initialData} />
+                    </div>
+                  </TabsContent>
+
+                  {/* Final Inspection Tab */}
+                  <TabsContent value="final-inspection" className="h-full overflow-y-auto pt-4 pb-2 pr-2">
+                    <div className="space-y-4">
+                      <FinalInspectionTab form={form} initialData={initialData} />
                     </div>
                   </TabsContent>
                 </div>
