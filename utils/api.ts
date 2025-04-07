@@ -2,27 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { UserRole } from '@/lib/auth'
 
-// Force all API routes to be dynamic
-export const dynamicConfig = {
-  dynamic: 'force-dynamic' as const
-}
-
 // Helper to get authenticated user
 export async function getAuthenticatedUser() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     return { user: null, supabase, role: null }
   }
-  
+
   // Get role from user metadata
   const metadataRole = user.user_metadata?.role
   const appMetadataRole = user.app_metadata?.role
-  
+
   // Use the first available role or default to client
   const role = (metadataRole || appMetadataRole || 'client') as UserRole
-  
+
   return { user, supabase, role }
 }
 
@@ -94,17 +89,17 @@ export function createProtectedApiHandler({
   return async (req: NextRequest) => {
     try {
       const { user, supabase, role } = await getAuthenticatedUser()
-      
+
       // Check if user is authenticated
       if (!user) {
         return unauthorizedResponse(authMessage)
       }
-      
+
       // Check if user has required role
       if (!hasRequiredRole(role, requiredRoles)) {
         return forbiddenResponse(roleMessage)
       }
-      
+
       // Call the handler with the authenticated user
       return await handler(req, user, supabase, role)
     } catch (error) {

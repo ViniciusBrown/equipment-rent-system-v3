@@ -1,6 +1,5 @@
 import { EquipmentInspection } from '@/lib/supabase/database.types'
 import {
-  dynamicConfig,
   createProtectedApiHandler,
   badRequestResponse,
   successResponse,
@@ -9,7 +8,7 @@ import {
 } from '@/utils/api'
 
 // Export dynamic config to prevent static optimization
-export const dynamic = dynamicConfig.dynamic
+export const dynamic = 'force-dynamic'
 
 export const POST = createProtectedApiHandler({
   requiredRoles: ['equipment_inspector', 'manager'],
